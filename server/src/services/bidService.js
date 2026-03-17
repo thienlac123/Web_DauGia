@@ -46,7 +46,7 @@ export const placeBidService = async (auctionId, userId, bidAmount) => {
   auction.highestBidderId = userId;
   await auction.save();
 
-  return bid;
+  return await Bid.findById(bid._id).populate("userId", "name email");
 };
 
 export const getBidsByAuctionService = async (auctionId) => {
