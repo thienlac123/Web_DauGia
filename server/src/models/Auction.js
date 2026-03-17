@@ -4,41 +4,46 @@ const auctionSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true
+      required: true,
+      trim: true,
     },
     description: {
-      type: String
+      type: String,
+      default: "",
     },
     startPrice: {
       type: Number,
-      required: true
+      required: true,
+      min: 0,
     },
     currentPrice: {
       type: Number,
-      required: true
+      required: true,
+      min: 0,
     },
     minBidStep: {
       type: Number,
-      default: 1000
+      default: 1000,
+      min: 1,
     },
     startTime: {
       type: Date,
-      required: true
+      required: true,
     },
     endTime: {
       type: Date,
-      required: true
+      required: true,
     },
     sellerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true
+      required: true,
     },
     status: {
       type: String,
-      enum: ["upcoming", "active", "ended"],
-      default: "upcoming"
-    }
+      enum: ["upcoming", "active", "ended", "cancelled"],
+      default: "upcoming",
+    },
   },
   { timestamps: true }
 );
