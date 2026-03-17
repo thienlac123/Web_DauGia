@@ -55,10 +55,9 @@ export const getAllAuctionsService = async () => {
 };
 
 export const getAuctionByIdService = async (auctionId) => {
-  const auction = await Auction.findById(auctionId).populate(
-    "sellerId",
-    "name email"
-  );
+  const auction = await Auction.findById(auctionId)
+    .populate("sellerId", "name email")
+    .populate("highestBidderId", "name email");
 
   if (!auction) {
     throw new Error("Không tìm thấy phiên đấu giá");
