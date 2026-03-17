@@ -39,6 +39,11 @@ const auctionSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    highestBidderId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  default: null,
+},
     status: {
       type: String,
       enum: ["upcoming", "active", "ended", "cancelled"],
