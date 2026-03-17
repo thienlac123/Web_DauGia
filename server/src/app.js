@@ -1,13 +1,24 @@
-const express = require("express");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
+import authRoutes from "./routes/authRoutes.js";
+import auctionRoutes from "./routes/auctionRoutes.js";
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Backend is running");
+  res.send("API is running...");
 });
 
-module.exports = app;
+app.use("/api/auth", authRoutes);
+app.use("/api/auctions", auctionRoutes);
+
+export default app;
