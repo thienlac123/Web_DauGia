@@ -1,11 +1,22 @@
 import Auction from "../models/Auction.js";
 
-const getAuctionStatus = (startTime, endTime) => {
+export const calculateAuctionStatus = (startTime, endTime) => {
   const now = new Date();
 
   if (now < new Date(startTime)) return "upcoming";
   if (now > new Date(endTime)) return "ended";
   return "active";
+};
+
+export const refreshAuctionStatus = async (auction) => {
+  const newStatus = calculateAuctionStatus(auction.startTime, auction.endTime);
+
+  if (auction.status !== newStatus) {
+    auction.status = newStatus;
+    await auction.save();
+  }
+
+  return auction;
 };
 
 export const createAuctionService = async ({
@@ -29,7 +40,7 @@ export const createAuctionService = async ({
     throw new Error("Thời gian kết thúc phải lớn hơn thời gian bắt đầu");
   }
 
-  const status = getAuctionStatus(startTime, endTime);
+  const status = calculateAuctionStatus(startTime, endTime);
 
   const auction = await Auction.create({
     title,
@@ -49,7 +60,12 @@ export const createAuctionService = async ({
 export const getAllAuctionsService = async () => {
   const auctions = await Auction.find()
     .populate("sellerId", "name email")
+    .populate("highestBidderId", "name email")
     .sort({ createdAt: -1 });
+
+  for (const auction of auctions) {
+    await refreshAuctionStatus(auction);
+  }
 
   return auctions;
 };
@@ -61,6 +77,13 @@ export const getAuctionByIdService = async (auctionId) => {
 
   if (!auction) {
     throw new Error("Không tìm thấy phiên đấu giá");
+  }
+
+    await refreshAuctionStatus(auction);
+
+  if (auction.status === "ended" && !auction.winnerId && auction.highestBidderId) {
+    auction.winnerId = auction.highestBidderId;
+    await auction.save();
   }
 
   return auction;
@@ -77,14 +100,12 @@ export const updateAuctionService = async (auctionId, userId, updateData) => {
     throw new Error("Bạn không có quyền cập nhật phiên đấu giá này");
   }
 
-  if (updateData.startTime && updateData.endTime) {
-    if (new Date(updateData.endTime) <= new Date(updateData.startTime)) {
-      throw new Error("Thời gian kết thúc phải lớn hơn thời gian bắt đầu");
-    }
-  }
-
   const mergedStartTime = updateData.startTime || auction.startTime;
   const mergedEndTime = updateData.endTime || auction.endTime;
+
+  if (new Date(mergedEndTime) <= new Date(mergedStartTime)) {
+    throw new Error("Thời gian kết thúc phải lớn hơn thời gian bắt đầu");
+  }
 
   auction.title = updateData.title ?? auction.title;
   auction.description = updateData.description ?? auction.description;
@@ -92,9 +113,12 @@ export const updateAuctionService = async (auctionId, userId, updateData) => {
   auction.minBidStep = updateData.minBidStep ?? auction.minBidStep;
   auction.startTime = mergedStartTime;
   auction.endTime = mergedEndTime;
-  auction.status = getAuctionStatus(mergedStartTime, mergedEndTime);
+  auction.status = calculateAuctionStatus(mergedStartTime, mergedEndTime);
 
-  if (updateData.startPrice !== undefined) {
+  if (
+    updateData.startPrice !== undefined &&
+    auction.currentPrice === auction.startPrice
+  ) {
     auction.currentPrice = updateData.startPrice;
   }
 
@@ -117,4 +141,25 @@ export const deleteAuctionService = async (auctionId, userId) => {
   await Auction.findByIdAndDelete(auctionId);
 
   return { message: "Xóa phiên đấu giá thành công" };
+};
+export const finalizeEndedAuctionService = async (auctionId) => {
+  const auction = await Auction.findById(auctionId);
+
+  if (!auction) {
+    throw new Error("Không tìm thấy phiên đấu giá");
+  }
+
+  const latestStatus = calculateAuctionStatus(auction.startTime, auction.endTime);
+
+  if (latestStatus === "ended") {
+    auction.status = "ended";
+
+    if (auction.highestBidderId) {
+      auction.winnerId = auction.highestBidderId;
+    }
+
+    await auction.save();
+  }
+
+  return auction;
 };

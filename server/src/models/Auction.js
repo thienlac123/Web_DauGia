@@ -44,6 +44,11 @@ const auctionSchema = new mongoose.Schema(
   ref: "User",
   default: null,
 },
+winnerId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  default: null,
+},
     status: {
       type: String,
       enum: ["upcoming", "active", "ended", "cancelled"],

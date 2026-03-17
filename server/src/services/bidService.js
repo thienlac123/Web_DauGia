@@ -1,5 +1,6 @@
 import Auction from "../models/Auction.js";
 import Bid from "../models/Bid.js";
+import { calculateAuctionStatus } from "./auctionService.js";
 
 export const placeBidService = async (auctionId, userId, bidAmount) => {
   const auction = await Auction.findById(auctionId);
@@ -8,8 +9,21 @@ export const placeBidService = async (auctionId, userId, bidAmount) => {
     throw new Error("Không tìm thấy phiên đấu giá");
   }
 
+  const latestStatus = calculateAuctionStatus(auction.startTime, auction.endTime);
+
+  if (auction.status !== latestStatus) {
+    auction.status = latestStatus;
+    await auction.save();
+  }
+
   if (auction.status !== "active") {
     throw new Error("Phiên đấu giá không ở trạng thái active");
+  }
+
+  if (new Date() > new Date(auction.endTime)) {
+    auction.status = "ended";
+    await auction.save();
+    throw new Error("Phiên đấu giá đã kết thúc");
   }
 
   if (auction.sellerId.toString() === userId) {
