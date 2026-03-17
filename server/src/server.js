@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import http from "http";
 import { Server } from "socket.io";
 import app from "./app.js";
+import { registerAuctionSocket } from "./sockets/auctionSocket.js";
 
 dotenv.config();
 
@@ -18,13 +19,7 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", (socket) => {
-  console.log("Client connected:", socket.id);
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
-  });
-});
+registerAuctionSocket(io);
 
 mongoose
   .connect(process.env.MONGO_URI)
