@@ -5,6 +5,7 @@ import {
   getAuctionBids,
 } from "../services/auctionService";
 import socket from "../socket/socket";
+import { getRemainingTime, getStatusLabel } from "../utils/time";
 
 function AuctionDetailPage() {
   const { id } = useParams();
@@ -15,6 +16,7 @@ function AuctionDetailPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [, setTick] = useState(0);
 
   const userId = localStorage.getItem("userId");
 
@@ -35,6 +37,14 @@ function AuctionDetailPage() {
 
     fetchAuctionDetail();
   }, [id]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTick((prev) => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     socket.emit("join_auction", id);
@@ -104,6 +114,9 @@ function AuctionDetailPage() {
   if (error) return <h2>{error}</h2>;
   if (!auction) return <h2>Không tìm thấy phiên đấu giá</h2>;
 
+  const isEnded = auction.status === "ended";
+  const isActive = auction.status === "active";
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>{auction.title}</h1>
@@ -125,7 +138,12 @@ function AuctionDetailPage() {
       </p>
 
       <p>
-        <strong>Trạng thái:</strong> {auction.status}
+        <strong>Trạng thái:</strong> {getStatusLabel(auction.status)}
+      </p>
+
+      <p>
+        <strong>Thời gian còn lại:</strong>{" "}
+        {isEnded ? "Đã kết thúc" : getRemainingTime(auction.endTime)}
       </p>
 
       <p>
@@ -138,6 +156,15 @@ function AuctionDetailPage() {
         {auction.highestBidderId
           ? `${auction.highestBidderId.name} - ${auction.highestBidderId.email}`
           : "Chưa có"}
+      </p>
+
+      <p>
+        <strong>Người thắng:</strong>{" "}
+        {auction.winnerId
+          ? typeof auction.winnerId === "object"
+            ? `${auction.winnerId.name} - ${auction.winnerId.email}`
+            : auction.winnerId
+          : "Chưa xác định"}
       </p>
 
       <p>
@@ -154,8 +181,14 @@ function AuctionDetailPage() {
 
       <h2>Đặt giá</h2>
 
-      {auction.status !== "active" ? (
-        <p>Phiên đấu giá hiện không cho phép đặt giá.</p>
+      {!isActive ? (
+        <p>
+          {auction.status === "upcoming"
+            ? "Phiên đấu giá chưa bắt đầu."
+            : auction.status === "ended"
+            ? "Phiên đấu giá đã kết thúc."
+            : "Phiên đấu giá hiện không cho phép đặt giá."}
+        </p>
       ) : (
         <div style={{ marginBottom: "20px" }}>
           <input
