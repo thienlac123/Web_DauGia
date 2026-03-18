@@ -1,7 +1,10 @@
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import auctionRoutes from "./routes/auctionRoutes.js";
+
+dotenv.config();
 
 const app = express();
 

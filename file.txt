@@ -2,7 +2,7 @@ Nhánh (Branch),Công việc chính
 1. feature/auth-base,"User model, Register, Login, Me, JWT middleware, Test Postman (Xong)."
 2. feature/auction-core,"Auction model, CRUD Auction APIs (Tạo, Lấy, Cập nhật, Xóa), Validate thời gian & quyền Seller." (done)
 3. feature/bid-system,"Bid model, API đặt giá, Validate giá/bước giá, Chặn seller tự bid, Lưu lịch sử, Cập nhật currentPrice."(done)
-4. feature/socket-realtime,"Cấu hình Socket.io, Join room theo auctionId, Emit giá mới/kết thúc phiên, Đồng bộ với Bid service."
+4. feature/socket-realtime,"Cấu hình Socket.io, Join room theo auctionId, Emit giá mới/kết thúc phiên, Đồng bộ với Bid service."(done)
 5. feature/auction-status,"Logic Upcoming/Active/Ended, Countdown, Tự đóng phiên, Cron job/Scheduler, Xác định Winner."
 6. feature/client-auth-ui,"UI Register/Login, Lưu Token, Protected Routes, Fetch user profile, Logout."
 7. feature/client-auction,"UI List/Detail Auction, Form tạo phiên, Hiển thị trạng thái phiên từ API."
