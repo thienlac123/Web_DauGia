@@ -4,13 +4,19 @@ import {
   getAuctionById,
   getAuctionBids,
 } from "../services/auctionService";
+import socket from "../socket/socket";
 
 function AuctionDetailPage() {
   const { id } = useParams();
+
   const [auction, setAuction] = useState(null);
   const [bids, setBids] = useState([]);
+  const [bidAmount, setBidAmount] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
     const fetchAuctionDetail = async () => {
@@ -29,6 +35,70 @@ function AuctionDetailPage() {
 
     fetchAuctionDetail();
   }, [id]);
+
+  useEffect(() => {
+    socket.emit("join_auction", id);
+
+    const handleAuctionJoined = (data) => {
+      if (data.auction?._id === id) {
+        setAuction(data.auction);
+      }
+    };
+
+    const handleBidUpdated = (data) => {
+      if (data.auction?._id === id) {
+        setAuction(data.auction);
+        setBids((prev) => [data.bid, ...prev]);
+        setMessage("Có giá đấu mới");
+      }
+    };
+
+    const handleAuctionEnded = (data) => {
+      if (data.auction?._id === id) {
+        setAuction(data.auction);
+        setMessage("Phiên đấu giá đã kết thúc");
+      }
+    };
+
+    const handleSocketError = (error) => {
+      setMessage(error.message || "Có lỗi socket");
+    };
+
+    socket.on("auction_joined", handleAuctionJoined);
+    socket.on("bid_updated", handleBidUpdated);
+    socket.on("auction_ended", handleAuctionEnded);
+    socket.on("socket_error", handleSocketError);
+
+    return () => {
+      socket.emit("leave_auction", id);
+      socket.off("auction_joined", handleAuctionJoined);
+      socket.off("bid_updated", handleBidUpdated);
+      socket.off("auction_ended", handleAuctionEnded);
+      socket.off("socket_error", handleSocketError);
+    };
+  }, [id]);
+
+  const handlePlaceBid = () => {
+    setMessage("");
+
+    if (!userId) {
+      setMessage("Không tìm thấy userId, hãy đăng nhập lại");
+      return;
+    }
+
+    if (!bidAmount) {
+      setMessage("Vui lòng nhập số tiền muốn đấu giá");
+      return;
+    }
+
+    socket.emit("place_bid", {
+      auctionId: id,
+      userId,
+      bidAmount: Number(bidAmount),
+    });
+
+    setBidAmount("");
+  };
 
   if (loading) return <h2>Đang tải chi tiết phiên đấu giá...</h2>;
   if (error) return <h2>{error}</h2>;
@@ -71,11 +141,6 @@ function AuctionDetailPage() {
       </p>
 
       <p>
-        <strong>Người thắng:</strong>{" "}
-        {auction.winnerId ? auction.winnerId : "Chưa xác định"}
-      </p>
-
-      <p>
         <strong>Thời gian bắt đầu:</strong>{" "}
         {new Date(auction.startTime).toLocaleString("vi-VN")}
       </p>
@@ -84,6 +149,27 @@ function AuctionDetailPage() {
         <strong>Thời gian kết thúc:</strong>{" "}
         {new Date(auction.endTime).toLocaleString("vi-VN")}
       </p>
+
+      <hr />
+
+      <h2>Đặt giá</h2>
+
+      {auction.status !== "active" ? (
+        <p>Phiên đấu giá hiện không cho phép đặt giá.</p>
+      ) : (
+        <div style={{ marginBottom: "20px" }}>
+          <input
+            type="number"
+            placeholder="Nhập số tiền đấu giá"
+            value={bidAmount}
+            onChange={(e) => setBidAmount(e.target.value)}
+            style={{ width: "300px", marginRight: "10px" }}
+          />
+          <button onClick={handlePlaceBid}>Đặt giá</button>
+        </div>
+      )}
+
+      {message && <p>{message}</p>}
 
       <hr />
 
