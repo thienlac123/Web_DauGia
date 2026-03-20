@@ -1,4 +1,3 @@
-
 import { Link, useNavigate } from "react-router-dom";
 
 function Header() {
@@ -14,126 +13,64 @@ function Header() {
     navigate("/login");
   };
 
-  // Style chung cho các Link để tránh lặp code
-  const linkStyle = {
-    color: "#cbd5e1",
-    textDecoration: "none",
-    fontSize: "15px",
-    fontWeight: "500",
-    transition: "color 0.3s ease",
-  };
-
   return (
     <header
       style={{
-        background: "#0f172a", // Màu tối sâu hơn trông sang trọng hơn
+        background: "#0f172a",
         color: "white",
-        padding: "0 24px",
-        height: "70px",
-        display: "flex",
-        alignItems: "center",
+        padding: "18px 24px",
         position: "sticky",
         top: 0,
-        zIndex: 1000,
-        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+        zIndex: 100,
       }}
     >
       <div
         style={{
           maxWidth: "1200px",
-          width: "100%",
           margin: "0 auto",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          gap: "16px",
+          flexWrap: "wrap",
         }}
       >
-        {/* Logo */}
         <Link
           to="/auctions"
           style={{
-            color: "#38bdf8", // Màu xanh dương highlight
-            textDecoration: "none",
-            fontSize: "22px",
-            fontWeight: "800",
-            letterSpacing: "-0.5px",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px"
+            fontSize: "24px",
+            fontWeight: "700",
+            color: "white",
           }}
         >
-          <span style={{ fontSize: "28px" }}>🔨</span> WEB ĐẤU GIÁ
+          LTD Auction
         </Link>
 
-        {/* Menu Điều hướng */}
-        <nav style={{ display: "flex", gap: "24px", alignItems: "center" }}>
-          <Link to="/auctions" style={linkStyle} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#cbd5e1'}>
-            Danh sách
+        <nav className="nav-actions">
+          <Link to="/auctions" className="header-link">
+            Danh sách đấu giá
           </Link>
 
-          <Link
-            to="/create-auction"
-            style={{
-              ...linkStyle,
-              background: "rgba(56, 189, 248, 0.1)",
-              padding: "6px 12px",
-              borderRadius: "8px",
-              color: "#38bdf8"
-            }}
-          >
-            + Tạo phiên
+          <Link to="/create-auction" className="header-link">
+            Tạo phiên đấu giá
           </Link>
-
-          <div style={{ height: "20px", width: "1px", background: "#334155" }}></div>
 
           {!token ? (
-            <div style={{ display: "flex", gap: "12px" }}>
-              <Link to="/login" style={linkStyle}>Đăng nhập</Link>
-              <Link 
-                to="/register" 
-                style={{
-                  ...linkStyle,
-                  background: "#38bdf8",
-                  color: "#0f172a",
-                  padding: "8px 16px",
-                  borderRadius: "6px",
-                  fontWeight: "bold"
-                }}
-              >
+            <>
+              <Link to="/login" className="header-link">
+                Đăng nhập
+              </Link>
+              <Link to="/register" className="header-link">
                 Đăng ký
               </Link>
-            </div>
+            </>
           ) : (
-            <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: "12px", color: "#94a3b8" }}>Xin chào,</div>
-                <div style={{ fontSize: "14px", fontWeight: "bold" }}>{userName || "Thành viên"}</div>
-              </div>
-              <button
-                onClick={handleLogout}
-                style={{
-                  padding: "8px 14px",
-                  background: "transparent",
-                  border: "1px solid #ef4444",
-                  color: "#ef4444",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  fontSize: "13px",
-                  fontWeight: "600",
-                  transition: "all 0.2s"
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = "#ef4444";
-                  e.target.style.color = "white";
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = "transparent";
-                  e.target.style.color = "#ef4444";
-                }}
-              >
+            <>
+              <span>Xin chào, {userName}</span>
+              <button className="primary-btn" onClick={handleLogout}>
                 Đăng xuất
               </button>
-            </div>
+            </>
           )}
         </nav>
       </div>

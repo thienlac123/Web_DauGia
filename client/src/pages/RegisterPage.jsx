@@ -33,7 +33,6 @@ function RegisterPage() {
       localStorage.setItem("userName", data.user.name);
       localStorage.setItem("userRole", data.user.role);
 
-      setMessage("Đăng ký thành công");
       navigate("/auctions");
     } catch (err) {
       setMessage(err.response?.data?.message || "Đăng ký thất bại");
@@ -41,66 +40,63 @@ function RegisterPage() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Đăng ký</h1>
+    <div>
+      <h1 className="page-title">Đăng ký</h1>
+      <p className="page-subtitle">Tạo tài khoản để bắt đầu sử dụng hệ thống đấu giá.</p>
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Họ tên"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            style={{ width: "320px" }}
-          />
-        </div>
+      <div className="form-card">
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="text"
+              name="name"
+              placeholder="Họ tên"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            style={{ width: "320px" }}
-          />
-        </div>
+          <div className="form-group">
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="password"
-            name="password"
-            placeholder="Mật khẩu"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            style={{ width: "320px" }}
-          />
-        </div>
+          <div className="form-group">
+            <input
+              type="password"
+              name="password"
+              placeholder="Mật khẩu"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            style={{ width: "320px" }}
-          >
-            <option value="buyer">Buyer</option>
-            <option value="seller">Seller</option>
-          </select>
-        </div>
+          <div className="form-group">
+            <select name="role" value={formData.role} onChange={handleChange}>
+              <option value="buyer">Buyer</option>
+              <option value="seller">Seller</option>
+            </select>
+          </div>
 
-        <button type="submit">Đăng ký</button>
-      </form>
+          <button className="primary-btn" type="submit">
+            Đăng ký
+          </button>
+        </form>
 
-      {message && <p>{message}</p>}
+        {message && <p className="error-message">{message}</p>}
 
-      <p>
-        Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
-      </p>
+        <p style={{ marginTop: "16px" }}>
+          Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
+        </p>
+      </div>
     </div>
   );
 }
