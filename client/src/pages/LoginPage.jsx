@@ -29,7 +29,6 @@ function LoginPage() {
       localStorage.setItem("userName", data.user.name);
       localStorage.setItem("userRole", data.user.role);
 
-      setMessage("Đăng nhập thành công");
       navigate("/auctions");
     } catch (err) {
       setMessage(err.response?.data?.message || "Đăng nhập thất bại");
@@ -37,42 +36,45 @@ function LoginPage() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Đăng nhập</h1>
+    <div>
+      <h1 className="page-title">Đăng nhập</h1>
+      <p className="page-subtitle">Truy cập tài khoản của bạn để tham gia đấu giá.</p>
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            style={{ width: "320px" }}
-          />
-        </div>
+      <div className="form-card">
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="password"
-            name="password"
-            placeholder="Mật khẩu"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            style={{ width: "320px" }}
-          />
-        </div>
+          <div className="form-group">
+            <input
+              type="password"
+              name="password"
+              placeholder="Mật khẩu"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <button type="submit">Đăng nhập</button>
-      </form>
+          <button className="primary-btn" type="submit">
+            Đăng nhập
+          </button>
+        </form>
 
-      {message && <p>{message}</p>}
+        {message && <p className="error-message">{message}</p>}
 
-      <p>
-        Chưa có tài khoản? <Link to="/register">Đăng ký</Link>
-      </p>
+        <p style={{ marginTop: "16px" }}>
+          Chưa có tài khoản? <Link to="/register">Đăng ký</Link>
+        </p>
+      </div>
     </div>
   );
 }

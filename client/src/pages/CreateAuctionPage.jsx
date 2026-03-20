@@ -50,83 +50,82 @@ function CreateAuctionPage() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Tạo phiên đấu giá</h1>
+    <div>
+      <h1 className="page-title">Tạo phiên đấu giá</h1>
+      <p className="page-subtitle">Điền thông tin để mở một phiên đấu giá mới.</p>
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="text"
-            name="title"
-            placeholder="Tiêu đề"
-            value={formData.title}
-            onChange={handleChange}
-            required
-            style={{ width: "400px" }}
-          />
-        </div>
+      <div className="form-card">
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="text"
+              name="title"
+              placeholder="Tiêu đề"
+              value={formData.title}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <textarea
-            name="description"
-            placeholder="Mô tả"
-            value={formData.description}
-            onChange={handleChange}
-            rows="4"
-            style={{ width: "400px" }}
-          />
-        </div>
+          <div className="form-group">
+            <textarea
+              name="description"
+              placeholder="Mô tả"
+              value={formData.description}
+              onChange={handleChange}
+              rows="4"
+            />
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="number"
-            name="startPrice"
-            placeholder="Giá khởi điểm"
-            value={formData.startPrice}
-            onChange={handleChange}
-            required
-            style={{ width: "400px" }}
-          />
-        </div>
+          <div className="form-group">
+            <input
+              type="number"
+              name="startPrice"
+              placeholder="Giá khởi điểm"
+              value={formData.startPrice}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="number"
-            name="minBidStep"
-            placeholder="Bước giá tối thiểu"
-            value={formData.minBidStep}
-            onChange={handleChange}
-            required
-            style={{ width: "400px" }}
-          />
-        </div>
+          <div className="form-group">
+            <input
+              type="number"
+              name="minBidStep"
+              placeholder="Bước giá tối thiểu"
+              value={formData.minBidStep}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="datetime-local"
-            name="startTime"
-            value={formData.startTime}
-            onChange={handleChange}
-            required
-            style={{ width: "400px" }}
-          />
-        </div>
+          <div className="form-group">
+            <input
+              type="datetime-local"
+              name="startTime"
+              value={formData.startTime}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <div style={{ marginBottom: "10px" }}>
-          <input
-            type="datetime-local"
-            name="endTime"
-            value={formData.endTime}
-            onChange={handleChange}
-            required
-            style={{ width: "400px" }}
-          />
-        </div>
+          <div className="form-group">
+            <input
+              type="datetime-local"
+              name="endTime"
+              value={formData.endTime}
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <button type="submit">Tạo phiên đấu giá</button>
-      </form>
+          <button className="primary-btn" type="submit">
+            Tạo phiên đấu giá
+          </button>
+        </form>
 
-      {message && <p style={{ marginTop: "12px" }}>{message}</p>}
+        {message && <p className="info-message">{message}</p>}
+      </div>
     </div>
   );
 }
