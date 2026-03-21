@@ -55,6 +55,11 @@ function Header() {
           <Link to="/auctions" className="header-link">
             Danh sách đấu giá
           </Link>
+          {userRole === "buyer" && (
+  <Link to="/bidder/dashboard" className="header-link">
+    Dashboard người đấu giá
+  </Link>
+)}
 
           {!token ? (
             <>
