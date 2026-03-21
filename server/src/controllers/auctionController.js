@@ -26,7 +26,13 @@ export const createAuction = async (req, res) => {
 
 export const getAllAuctions = async (req, res) => {
   try {
-    const auctions = await getAllAuctionsService();
+    const { search, status, sort } = req.query;
+
+    const auctions = await getAllAuctionsService({
+      search,
+      status,
+      sort,
+    });
 
     res.status(200).json({
       message: "Lấy danh sách phiên đấu giá thành công",
