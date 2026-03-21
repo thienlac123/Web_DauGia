@@ -37,7 +37,7 @@ function Header() {
         }}
       >
         <Link
-          to="/auctions"
+          to="/"
           style={{
             fontSize: "24px",
             fontWeight: "700",
@@ -48,12 +48,12 @@ function Header() {
         </Link>
 
         <nav className="nav-actions">
-          <Link to="/auctions" className="header-link">
-            Danh sách đấu giá
+          <Link to="/" className="header-link">
+            Home
           </Link>
 
-          <Link to="/create-auction" className="header-link">
-            Tạo phiên đấu giá
+          <Link to="/auctions" className="header-link">
+            Danh sách đấu giá
           </Link>
 
           {!token ? (
@@ -68,11 +68,19 @@ function Header() {
           ) : (
             <>
               {userRole === "seller" && (
-                <Link to="/seller/dashboard" className="header-link">
-                  Dashboard người tạo
-                </Link>
+                <>
+                  <Link to="/create-auction" className="header-link">
+                    Tạo phiên đấu giá
+                  </Link>
+
+                  <Link to="/seller/dashboard" className="header-link">
+                    Dashboard người tạo
+                  </Link>
+                </>
               )}
+
               <span>Xin chào, {userName}</span>
+
               <button className="primary-btn" onClick={handleLogout}>
                 Đăng xuất
               </button>

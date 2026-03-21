@@ -7,20 +7,32 @@ function AuctionListPage() {
   const [auctions, setAuctions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+  const [sort, setSort] = useState("");
+
   const [, setTick] = useState(0);
 
-  useEffect(() => {
-    const fetchAuctions = async () => {
-      try {
-        const data = await getAllAuctions();
-        setAuctions(data.auctions || []);
-      } catch (err) {
-        setError(err.response?.data?.message || "Lỗi tải danh sách đấu giá");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchAuctions = async () => {
+    try {
+      setLoading(true);
 
+      const params = {};
+      if (search) params.search = search;
+      if (status) params.status = status;
+      if (sort) params.sort = sort;
+
+      const data = await getAllAuctions(params);
+      setAuctions(data.auctions || []);
+    } catch (err) {
+      setError(err.response?.data?.message || "Lỗi tải danh sách đấu giá");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchAuctions();
   }, []);
 
@@ -32,10 +44,15 @@ function AuctionListPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const getStatusClass = (status) => {
-    if (status === "active") return "status-badge status-active";
-    if (status === "upcoming") return "status-badge status-upcoming";
-    if (status === "ended") return "status-badge status-ended";
+  const handleFilter = (e) => {
+    e.preventDefault();
+    fetchAuctions();
+  };
+
+  const getStatusClass = (auctionStatus) => {
+    if (auctionStatus === "active") return "status-badge status-active";
+    if (auctionStatus === "upcoming") return "status-badge status-upcoming";
+    if (auctionStatus === "ended") return "status-badge status-ended";
     return "status-badge status-cancelled";
   };
 
@@ -45,28 +62,59 @@ function AuctionListPage() {
   return (
     <div>
       <div className="hero-banner">
-        <h1>Chào mừng đến với Web Đấu Giá</h1>
+        <h1>Danh sách sản phẩm đấu giá</h1>
         <p>
-          Theo dõi các phiên đấu giá đang diễn ra, tham gia trả giá và cập nhật
-          thời gian thực.
+          Tìm kiếm, lọc theo trạng thái và theo dõi các phiên đấu giá đang diễn ra.
         </p>
       </div>
 
-      <div className="top-bar">
-        <div>
-          <h1 className="page-title">Danh sách phiên đấu giá</h1>
-          <p className="page-subtitle">
-            Khám phá các sản phẩm đang mở đấu giá trên hệ thống.
-          </p>
-        </div>
+      <div className="detail-card">
+        <form
+          onSubmit={handleFilter}
+          style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}
+        >
+          <input
+            className="input-inline"
+            type="text"
+            placeholder="Tìm theo tên sản phẩm..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
 
-        <Link to="/create-auction">
-          <button className="primary-btn">Tạo phiên đấu giá</button>
-        </Link>
+          <select
+            className="input-inline"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            style={{ width: "220px" }}
+          >
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">Đang diễn ra</option>
+            <option value="upcoming">Sắp tới</option>
+            <option value="ended">Đã kết thúc</option>
+          </select>
+
+          <select
+            className="input-inline"
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            style={{ width: "220px" }}
+          >
+            <option value="">Mặc định</option>
+            <option value="price_asc">Giá tăng dần</option>
+            <option value="price_desc">Giá giảm dần</option>
+            <option value="oldest">Cũ nhất</option>
+          </select>
+
+          <button className="primary-btn" type="submit">
+            Lọc
+          </button>
+        </form>
       </div>
 
       {auctions.length === 0 ? (
-        <p>Chưa có phiên đấu giá nào.</p>
+        <div className="detail-card">
+          <p>Không có phiên đấu giá phù hợp.</p>
+        </div>
       ) : (
         <div className="auction-grid">
           {auctions.map((auction) => (

@@ -57,11 +57,31 @@ export const createAuctionService = async ({
   return auction;
 };
 
-export const getAllAuctionsService = async () => {
-  const auctions = await Auction.find()
+export const getAllAuctionsService = async ({ search, status, sort }) => {
+  const query = {};
+
+  if (search) {
+    query.title = { $regex: search, $options: "i" };
+  }
+
+  if (status) {
+    query.status = status;
+  }
+
+  let sortOption = { createdAt: -1 };
+
+  if (sort === "price_asc") {
+    sortOption = { currentPrice: 1 };
+  } else if (sort === "price_desc") {
+    sortOption = { currentPrice: -1 };
+  } else if (sort === "oldest") {
+    sortOption = { createdAt: 1 };
+  }
+
+  const auctions = await Auction.find(query)
     .populate("sellerId", "name email")
     .populate("highestBidderId", "name email")
-    .sort({ createdAt: -1 });
+    .sort(sortOption);
 
   for (const auction of auctions) {
     await refreshAuctionStatus(auction);
