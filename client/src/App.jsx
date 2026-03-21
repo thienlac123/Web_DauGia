@@ -9,7 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import MainLayout from "./components/layout/MainLayout";
 import SellerDashboardPage from "./pages/SellerDashboardPage";
-
+import BidderDashboardPage from "./pages/BidderDashboardPage";
 function App() {
   return (
     <BrowserRouter>
@@ -34,6 +34,14 @@ function App() {
               </RoleProtectedRoute>
             }
           />
+          <Route
+  path="/bidder/dashboard"
+  element={
+    <RoleProtectedRoute role="buyer">
+      <BidderDashboardPage />
+    </RoleProtectedRoute>
+  }
+/>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Routes>
