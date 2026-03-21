@@ -4,6 +4,7 @@ function Header() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const userName = localStorage.getItem("userName");
+  const userRole = localStorage.getItem("userRole");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -66,6 +67,11 @@ function Header() {
             </>
           ) : (
             <>
+              {userRole === "seller" && (
+                <Link to="/seller/dashboard" className="header-link">
+                  Dashboard người tạo
+                </Link>
+              )}
               <span>Xin chào, {userName}</span>
               <button className="primary-btn" onClick={handleLogout}>
                 Đăng xuất

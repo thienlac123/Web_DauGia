@@ -6,6 +6,9 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/layout/MainLayout";
+import SellerDashboardPage from "./pages/SellerDashboardPage";
+import RoleProtectedRoute from "./components/RoleProtectedRoute";
+
 
 function App() {
   return (
@@ -23,6 +26,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+  path="/seller/dashboard"
+  element={
+    <RoleProtectedRoute role="seller">
+      <SellerDashboardPage />
+    </RoleProtectedRoute>
+  }
+/>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Routes>
