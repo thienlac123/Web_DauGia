@@ -40,10 +40,10 @@ function CreateAuctionPage() {
         minBidStep: Number(formData.minBidStep),
       };
 
-      const data = await createAuction(payload, token);
+     const data = await createAuction(payload, token);
 
-      setMessage("Tạo phiên đấu giá thành công");
-      navigate(`/auctions/${data.auction._id}`);
+setMessage("Tạo phiên đấu giá thành công, đang chờ admin duyệt");
+navigate("/seller/dashboard");
     } catch (err) {
       setMessage(err.response?.data?.message || "Tạo phiên đấu giá thất bại");
     }

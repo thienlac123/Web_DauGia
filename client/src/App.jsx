@@ -10,6 +10,8 @@ import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import MainLayout from "./components/layout/MainLayout";
 import SellerDashboardPage from "./pages/SellerDashboardPage";
 import BidderDashboardPage from "./pages/BidderDashboardPage";
+import AdminPanelPage from "./pages/AdminPanelPage";
+
 function App() {
   return (
     <BrowserRouter>
@@ -44,6 +46,14 @@ function App() {
 />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route
+  path="/admin"
+  element={
+    <RoleProtectedRoute role="admin">
+      <AdminPanelPage />
+    </RoleProtectedRoute>
+  }
+/>
         </Routes>
       </MainLayout>
     </BrowserRouter>

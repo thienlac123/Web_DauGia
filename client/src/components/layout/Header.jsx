@@ -83,6 +83,11 @@ function Header() {
                   </Link>
                 </>
               )}
+              {userRole === "admin" && (
+  <Link to="/admin" className="header-link">
+    Admin Panel
+  </Link>
+)}
 
               <span>Xin chào, {userName}</span>
 
