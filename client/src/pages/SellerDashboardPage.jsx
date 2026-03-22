@@ -74,51 +74,68 @@ function SellerDashboardPage() {
       ) : (
         <div className="auction-grid">
           {auctions.map((auction) => (
-            <div key={auction._id} className="auction-card">
-              <span className={getStatusClass(auction.status)}>
-                {getStatusLabel(auction.status)}
-              </span>
+  <div key={auction._id} className="auction-card">
+    <span className={getStatusClass(auction.status)}>
+      {getStatusLabel(auction.status)}
+    </span>
 
-              <h2>{auction.title}</h2>
+    <h2>{auction.title}</h2>
 
-              <p className="muted-text">{auction.description || "Không có mô tả"}</p>
+    <p className="muted-text">{auction.description || "Không có mô tả"}</p>
 
-              <p>
-                <strong>Giá hiện tại:</strong>{" "}
-                {auction.currentPrice?.toLocaleString("vi-VN")} VND
-              </p>
+    {/* --- PHẦN SỬA THEO ẢNH --- */}
+    <p>
+      <strong>Trạng thái duyệt:</strong>{" "}
+      {auction.approvalStatus === "pending"
+        ? "Chờ duyệt"
+        : auction.approvalStatus === "approved"
+        ? "Đã duyệt"
+        : "Bị từ chối"}
+    </p>
 
-              <p>
-                <strong>Bước giá:</strong>{" "}
-                {auction.minBidStep?.toLocaleString("vi-VN")} VND
-              </p>
+    {auction.approvalStatus === "rejected" && auction.approvalNote && (
+      <p>
+        <strong style={{ color: "red" }}>Lý do từ chối:</strong> {auction.approvalNote}
+      </p>
+    )}
+    {/* --- HẾT PHẦN SỬA --- */}
 
-              <p>
-                <strong>Người dẫn đầu:</strong>{" "}
-                {auction.highestBidderId
-                  ? auction.highestBidderId.name
-                  : "Chưa có"}
-              </p>
+    <p>
+      <strong>Giá hiện tại:</strong>{" "}
+      {auction.currentPrice?.toLocaleString("vi-VN")} VND
+    </p>
 
-              <p>
-                <strong>Kết thúc:</strong>{" "}
-                {new Date(auction.endTime).toLocaleString("vi-VN")}
-              </p>
+    <p>
+      <strong>Bước giá:</strong>{" "}
+      {auction.minBidStep?.toLocaleString("vi-VN")} VND
+    </p>
 
-              <p>
-                <strong>Thời gian còn lại:</strong>{" "}
-                {auction.status === "ended"
-                  ? "Đã kết thúc"
-                  : getRemainingTime(auction.endTime)}
-              </p>
+    <p>
+      <strong>Người dẫn đầu:</strong>{" "}
+      {auction.highestBidderId
+        ? auction.highestBidderId.name
+        : "Chưa có"}
+    </p>
 
-              <div style={{ marginTop: "14px", display: "flex", gap: "10px" }}>
-                <Link to={`/auctions/${auction._id}`}>
-                  <button className="secondary-btn">Xem chi tiết</button>
-                </Link>
-              </div>
-            </div>
-          ))}
+    <p>
+      <strong>Kết thúc:</strong>{" "}
+      {new Date(auction.endTime).toLocaleString("vi-VN")}
+    </p>
+
+    <p>
+      <strong>Thời gian còn lại:</strong>{" "}
+      {auction.status === "ended"
+        ? "Đã kết thúc"
+        : getRemainingTime(auction.endTime)}
+    </p>
+
+    <div style={{ marginTop: "14px", display: "flex", gap: "10px" }}>
+      <Link to={`/auctions/${auction._id}`}>
+        <button className="secondary-btn">Xem chi tiết</button>
+      </Link>
+    </div>
+  </div>
+))}
         </div>
       )}
     </div>

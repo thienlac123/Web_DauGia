@@ -58,7 +58,9 @@ export const createAuctionService = async ({
 };
 
 export const getAllAuctionsService = async ({ search, status, sort }) => {
-  const query = {};
+  const query = {
+    approvalStatus: "approved",
+  };
 
   if (search) {
     query.title = { $regex: search, $options: "i" };

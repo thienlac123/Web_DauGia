@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema(
       enum: ["buyer", "seller", "admin"],
       default: "buyer",
     },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },  
   },
   { timestamps: true }
 );

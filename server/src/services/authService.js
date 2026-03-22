@@ -2,10 +2,17 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+const generateToken = (user) => {
+  return jwt.sign(
+    {
+      userId: user._id,
+      role: user.role,
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "7d",
+    }
+  );
 };
 
 export const registerUser = async ({ name, email, password, role }) => {
@@ -16,14 +23,22 @@ export const registerUser = async ({ name, email, password, role }) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  let finalRole = role || "buyer";
+
+  if (email === process.env.ADMIN_EMAIL) {
+    finalRole = "admin";
+  } else if (!["buyer", "seller"].includes(finalRole)) {
+    finalRole = "buyer";
+  }
+
   const user = await User.create({
     name,
     email,
     password: hashedPassword,
-    role: role || "buyer",
+    role: finalRole,
   });
 
-  const token = generateToken(user._id);
+  const token = generateToken(user);
 
   return {
     user: {
@@ -42,12 +57,16 @@ export const loginUser = async ({ email, password }) => {
     throw new Error("Email hoặc mật khẩu không đúng");
   }
 
+  if (user.isBlocked) {
+    throw new Error("Tài khoản của bạn đã bị khóa");
+  }
+
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     throw new Error("Email hoặc mật khẩu không đúng");
   }
 
-  const token = generateToken(user._id);
+  const token = generateToken(user);
 
   return {
     user: {

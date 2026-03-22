@@ -54,6 +54,15 @@ winnerId: {
       enum: ["upcoming", "active", "ended", "cancelled"],
       default: "upcoming",
     },
+    approvalStatus: {
+  type: String,
+  enum: ["pending", "approved", "rejected"],
+  default: "pending",
+},
+approvalNote: {
+  type: String,
+  default: "",
+},
   },
   { timestamps: true }
 );
