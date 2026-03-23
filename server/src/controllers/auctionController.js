@@ -5,13 +5,26 @@ import {
   updateAuctionService,
   deleteAuctionService,
 } from "../services/auctionService.js";
-
+import User from "../models/User.js";
+import { createNotificationService } from "../services/notificationService.js";
 export const createAuction = async (req, res) => {
   try {
     const auction = await createAuctionService({
       ...req.body,
       sellerId: req.user.userId,
     });
+
+    const admins = await User.find({ role: "admin" });
+
+    for (const admin of admins) {
+      await createNotificationService({
+        userId: admin._id,
+        title: "Có phiên đấu giá mới chờ duyệt",
+        message: `Seller vừa tạo phiên đấu giá "${auction.title}". Vui lòng kiểm duyệt.`,
+        type: "system",
+        relatedAuctionId: auction._id,
+      });
+    }
 
     res.status(201).json({
       message: "Tạo phiên đấu giá thành công",

@@ -11,6 +11,8 @@ import MainLayout from "./components/layout/MainLayout";
 import SellerDashboardPage from "./pages/SellerDashboardPage";
 import BidderDashboardPage from "./pages/BidderDashboardPage";
 import AdminPanelPage from "./pages/AdminPanelPage";
+import NotificationsPage from "./pages/NotificationsPage";
+import SellerAuctionDetailPage from "./pages/SellerAuctionDetailPage";
 
 function App() {
   return (
@@ -37,6 +39,23 @@ function App() {
             }
           />
           <Route
+  path="/seller/auctions/:id"
+  element={
+    <RoleProtectedRoute role="seller">
+      <SellerAuctionDetailPage />
+    </RoleProtectedRoute>
+  }
+/>
+          <Route
+  path="/notifications"
+  element={
+    <ProtectedRoute>
+      <NotificationsPage />
+    </ProtectedRoute>
+  }
+/>
+          <Route
+          
   path="/bidder/dashboard"
   element={
     <RoleProtectedRoute role="buyer">

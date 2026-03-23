@@ -88,6 +88,9 @@ function Header() {
     Admin Panel
   </Link>
 )}
+<Link to="/notifications" className="header-link">
+  Thông báo
+</Link>
 
               <span>Xin chào, {userName}</span>
 

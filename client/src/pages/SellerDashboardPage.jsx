@@ -130,9 +130,9 @@ function SellerDashboardPage() {
     </p>
 
     <div style={{ marginTop: "14px", display: "flex", gap: "10px" }}>
-      <Link to={`/auctions/${auction._id}`}>
-        <button className="secondary-btn">Xem chi tiết</button>
-      </Link>
+      <Link to={`/seller/auctions/${auction._id}`}>
+  <button className="secondary-btn">Xem quản lý</button>
+</Link>
     </div>
   </div>
 ))}

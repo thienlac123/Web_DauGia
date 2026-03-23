@@ -50,3 +50,27 @@ export const getMyBids = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+export const getSellerAuctionDetail = async (req, res) => {
+  try {
+    const auction = await Auction.findOne({
+      _id: req.params.id,
+      sellerId: req.user.userId,
+    })
+      .populate("highestBidderId", "name email")
+      .populate("sellerId", "name email");
+
+    if (!auction) {
+      return res.status(404).json({
+        message: "Không tìm thấy phiên đấu giá của bạn",
+      });
+    }
+
+    res.status(200).json({
+      auction,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
