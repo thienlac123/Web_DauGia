@@ -11,3 +11,13 @@ export const getSellerAuctions = async (token) => {
 
   return response.data;
 };
+
+export const getSellerAuctionDetail = async (id, token) => {
+  const response = await axios.get(`${API_URL}/seller/auctions/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};

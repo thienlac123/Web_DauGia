@@ -1,6 +1,6 @@
 import User from "../models/User.js";
 import Auction from "../models/Auction.js";
-
+import { createNotificationService } from "../services/notificationService.js";
 export const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select("-password").sort({ createdAt: -1 });
@@ -55,6 +55,14 @@ export const approveAuction = async (req, res) => {
     auction.approvalNote = "";
     await auction.save();
 
+    await createNotificationService({
+      userId: auction.sellerId,
+      title: "Phiên đấu giá đã được duyệt",
+      message: `Phiên đấu giá "${auction.title}" đã được admin duyệt và hiển thị công khai.`,
+      type: "auction_approved",
+      relatedAuctionId: auction._id,
+    });
+
     res.status(200).json({
       message: "Đã duyệt phiên đấu giá",
       auction,
@@ -77,6 +85,14 @@ export const rejectAuction = async (req, res) => {
     auction.approvalStatus = "rejected";
     auction.approvalNote = note || "";
     await auction.save();
+
+    await createNotificationService({
+      userId: auction.sellerId,
+      title: "Phiên đấu giá bị từ chối",
+      message: `Phiên đấu giá "${auction.title}" đã bị từ chối.${note ? ` Lý do: ${note}` : ""}`,
+      type: "auction_rejected",
+      relatedAuctionId: auction._id,
+    });
 
     res.status(200).json({
       message: "Đã từ chối phiên đấu giá",
