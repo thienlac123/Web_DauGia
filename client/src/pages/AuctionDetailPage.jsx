@@ -116,6 +116,37 @@ function AuctionDetailPage() {
 
   return (
     <div>
+      {/* --- PHẦN 1: GALLERY HÌNH ẢNH (MỚI THÊM) --- */}
+      <div className="detail-card">
+        <h2 className="detail-section-title">Hình ảnh sản phẩm</h2>
+        {auction.images && auction.images.length > 0 ? (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "12px",
+            }}
+          >
+            {auction.images.map((img, index) => (
+              <img
+                key={index}
+                src={img}
+                alt={`${auction.title}-${index}`}
+                style={{
+                  width: "100%",
+                  height: "220px",
+                  objectFit: "cover",
+                  borderRadius: "12px",
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <p>Chưa có hình ảnh sản phẩm.</p>
+        )}
+      </div>
+
+      {/* --- PHẦN 2: THÔNG TIN CHI TIẾT PHIÊN ĐẤU GIÁ --- */}
       <div className="detail-card">
         <span
           className={`status-badge ${
@@ -133,6 +164,19 @@ function AuctionDetailPage() {
 
         <h1 className="page-title">{auction.title}</h1>
         <p className="page-subtitle">{auction.description}</p>
+
+        {/* --- BỔ SUNG CÁC TRƯỜNG THÔNG TIN MỚI --- */}
+        <div style={{ marginBottom: "20px" }}>
+          <p>
+            <strong>Danh mục:</strong> {auction.category || "Khác"}
+          </p>
+          <p>
+            <strong>Địa điểm:</strong> {auction.location || "Chưa cập nhật"}
+          </p>
+          <p>
+            <strong>Tình trạng:</strong> {auction.condition || "Chưa cập nhật"}
+          </p>
+        </div>
 
         <div className="highlight-box">
           <p>
@@ -187,6 +231,7 @@ function AuctionDetailPage() {
         </p>
       </div>
 
+      {/* --- PHẦN 3: ĐẶT GIÁ --- */}
       <div className="detail-card">
         <h2 className="detail-section-title">Đặt giá</h2>
 
@@ -216,6 +261,7 @@ function AuctionDetailPage() {
         {message && <p className="info-message">{message}</p>}
       </div>
 
+      {/* --- PHẦN 4: LỊCH SỬ ĐẶT GIÁ --- */}
       <div className="detail-card">
         <h2 className="detail-section-title">Lịch sử đặt giá</h2>
 

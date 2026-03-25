@@ -12,6 +12,12 @@ function CreateAuctionPage() {
     minBidStep: "",
     startTime: "",
     endTime: "",
+    category: "",
+    location: "",
+    condition: "",
+    image1: "",
+    image2: "",
+    image3: "",
   });
 
   const [message, setMessage] = useState("");
@@ -34,16 +40,27 @@ function CreateAuctionPage() {
         return;
       }
 
+      const images = [formData.image1, formData.image2, formData.image3].filter(
+        (img) => img.trim() !== ""
+      );
+
       const payload = {
-        ...formData,
+        title: formData.title,
+        description: formData.description,
         startPrice: Number(formData.startPrice),
         minBidStep: Number(formData.minBidStep),
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        category: formData.category,
+        location: formData.location,
+        condition: formData.condition,
+        images,
       };
 
-     const data = await createAuction(payload, token);
+      await createAuction(payload, token);
 
-setMessage("Tạo phiên đấu giá thành công, đang chờ admin duyệt");
-navigate("/seller/dashboard");
+      setMessage("Tạo phiên đấu giá thành công, đang chờ admin duyệt");
+      navigate("/seller/dashboard");
     } catch (err) {
       setMessage(err.response?.data?.message || "Tạo phiên đấu giá thất bại");
     }
@@ -52,7 +69,7 @@ navigate("/seller/dashboard");
   return (
     <div>
       <h1 className="page-title">Tạo phiên đấu giá</h1>
-      <p className="page-subtitle">Điền thông tin để mở một phiên đấu giá mới.</p>
+      <p className="page-subtitle">Điền thông tin sản phẩm và thêm ảnh minh họa.</p>
 
       <div className="form-card">
         <form onSubmit={handleSubmit}>
@@ -60,7 +77,7 @@ navigate("/seller/dashboard");
             <input
               type="text"
               name="title"
-              placeholder="Tiêu đề"
+              placeholder="Tên sản phẩm"
               value={formData.title}
               onChange={handleChange}
               required
@@ -70,10 +87,40 @@ navigate("/seller/dashboard");
           <div className="form-group">
             <textarea
               name="description"
-              placeholder="Mô tả"
+              placeholder="Mô tả sản phẩm"
               value={formData.description}
               onChange={handleChange}
               rows="4"
+            />
+          </div>
+
+          <div className="form-group">
+            <input
+              type="text"
+              name="category"
+              placeholder="Danh mục (ví dụ: Điện thoại, Laptop...)"
+              value={formData.category}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <input
+              type="text"
+              name="location"
+              placeholder="Địa điểm sản phẩm"
+              value={formData.location}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <input
+              type="text"
+              name="condition"
+              placeholder="Tình trạng sản phẩm"
+              value={formData.condition}
+              onChange={handleChange}
             />
           </div>
 
@@ -116,6 +163,36 @@ navigate("/seller/dashboard");
               value={formData.endTime}
               onChange={handleChange}
               required
+            />
+          </div>
+
+          <div className="form-group">
+            <input
+              type="text"
+              name="image1"
+              placeholder="Link ảnh 1"
+              value={formData.image1}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <input
+              type="text"
+              name="image2"
+              placeholder="Link ảnh 2"
+              value={formData.image2}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <input
+              type="text"
+              name="image3"
+              placeholder="Link ảnh 3"
+              value={formData.image3}
+              onChange={handleChange}
             />
           </div>
 

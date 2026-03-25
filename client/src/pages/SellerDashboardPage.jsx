@@ -74,68 +74,105 @@ function SellerDashboardPage() {
       ) : (
         <div className="auction-grid">
           {auctions.map((auction) => (
-  <div key={auction._id} className="auction-card">
-    <span className={getStatusClass(auction.status)}>
-      {getStatusLabel(auction.status)}
-    </span>
+            <div key={auction._id} className="auction-card">
+              <span className={getStatusClass(auction.status)}>
+                {getStatusLabel(auction.status)}
+              </span>
 
-    <h2>{auction.title}</h2>
+              {/* --- PHẦN 1: THÊM ẢNH SẢN PHẨM --- */}
+              {auction.images && auction.images.length > 0 ? (
+                <img
+                  src={auction.images[0]}
+                  alt={auction.title}
+                  style={{
+                    width: "100%",
+                    height: "180px",
+                    objectFit: "cover",
+                    borderRadius: "12px",
+                    marginBottom: "12px",
+                    marginTop: "12px",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "180px",
+                    background: "#e2e8f0",
+                    borderRadius: "12px",
+                    marginBottom: "12px",
+                    marginTop: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#475569",
+                  }}
+                >
+                  Không có ảnh
+                </div>
+              )}
 
-    <p className="muted-text">{auction.description || "Không có mô tả"}</p>
+              <h2>{auction.title}</h2>
 
-    {/* --- PHẦN SỬA THEO ẢNH --- */}
-    <p>
-      <strong>Trạng thái duyệt:</strong>{" "}
-      {auction.approvalStatus === "pending"
-        ? "Chờ duyệt"
-        : auction.approvalStatus === "approved"
-        ? "Đã duyệt"
-        : "Bị từ chối"}
-    </p>
+              <p className="muted-text">{auction.description || "Không có mô tả"}</p>
 
-    {auction.approvalStatus === "rejected" && auction.approvalNote && (
-      <p>
-        <strong style={{ color: "red" }}>Lý do từ chối:</strong> {auction.approvalNote}
-      </p>
-    )}
-    {/* --- HẾT PHẦN SỬA --- */}
+              {/* --- PHẦN 2: THÊM DANH MỤC --- */}
+              <p>
+                <strong>Danh mục:</strong> {auction.category || "Khác"}
+              </p>
 
-    <p>
-      <strong>Giá hiện tại:</strong>{" "}
-      {auction.currentPrice?.toLocaleString("vi-VN")} VND
-    </p>
+              {/* --- PHẦN TRẠNG THÁI DUYỆT CỦA BẠN --- */}
+              <p>
+                <strong>Trạng thái duyệt:</strong>{" "}
+                {auction.approvalStatus === "pending"
+                  ? "Chờ duyệt"
+                  : auction.approvalStatus === "approved"
+                  ? "Đã duyệt"
+                  : "Bị từ chối"}
+              </p>
 
-    <p>
-      <strong>Bước giá:</strong>{" "}
-      {auction.minBidStep?.toLocaleString("vi-VN")} VND
-    </p>
+              {auction.approvalStatus === "rejected" && auction.approvalNote && (
+                <p>
+                  <strong style={{ color: "red" }}>Lý do từ chối:</strong> {auction.approvalNote}
+                </p>
+              )}
 
-    <p>
-      <strong>Người dẫn đầu:</strong>{" "}
-      {auction.highestBidderId
-        ? auction.highestBidderId.name
-        : "Chưa có"}
-    </p>
+              <p>
+                <strong>Giá hiện tại:</strong>{" "}
+                {auction.currentPrice?.toLocaleString("vi-VN")} VND
+              </p>
 
-    <p>
-      <strong>Kết thúc:</strong>{" "}
-      {new Date(auction.endTime).toLocaleString("vi-VN")}
-    </p>
+              <p>
+                <strong>Bước giá:</strong>{" "}
+                {auction.minBidStep?.toLocaleString("vi-VN")} VND
+              </p>
 
-    <p>
-      <strong>Thời gian còn lại:</strong>{" "}
-      {auction.status === "ended"
-        ? "Đã kết thúc"
-        : getRemainingTime(auction.endTime)}
-    </p>
+              <p>
+                <strong>Người dẫn đầu:</strong>{" "}
+                {auction.highestBidderId
+                  ? auction.highestBidderId.name
+                  : "Chưa có"}
+              </p>
 
-    <div style={{ marginTop: "14px", display: "flex", gap: "10px" }}>
-      <Link to={`/seller/auctions/${auction._id}`}>
-  <button className="secondary-btn">Xem quản lý</button>
-</Link>
-    </div>
-  </div>
-))}
+              <p>
+                <strong>Kết thúc:</strong>{" "}
+                {new Date(auction.endTime).toLocaleString("vi-VN")}
+              </p>
+
+              <p>
+                <strong>Thời gian còn lại:</strong>{" "}
+                {auction.status === "ended"
+                  ? "Đã kết thúc"
+                  : getRemainingTime(auction.endTime)}
+              </p>
+
+              <div style={{ marginTop: "14px", display: "flex", gap: "10px" }}>
+                <Link to={`/seller/auctions/${auction._id}`}>
+                  <button className="secondary-btn">Xem quản lý</button>
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
