@@ -1,10 +1,33 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getUnreadNotificationCount } from "../../services/notificationService";
 
 function Header() {
   const navigate = useNavigate();
+
   const token = localStorage.getItem("token");
   const userName = localStorage.getItem("userName");
   const userRole = localStorage.getItem("userRole");
+
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        if (!token) {
+          setUnreadCount(0);
+          return;
+        }
+
+        const data = await getUnreadNotificationCount(token);
+        setUnreadCount(data.count || 0);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchUnreadCount();
+  }, [token]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -55,11 +78,6 @@ function Header() {
           <Link to="/auctions" className="header-link">
             Danh sách đấu giá
           </Link>
-          {userRole === "buyer" && (
-  <Link to="/bidder/dashboard" className="header-link">
-    Dashboard người đấu giá
-  </Link>
-)}
 
           {!token ? (
             <>
@@ -72,6 +90,12 @@ function Header() {
             </>
           ) : (
             <>
+              {userRole === "buyer" && (
+                <Link to="/bidder/dashboard" className="header-link">
+                  Dashboard người đấu giá
+                </Link>
+              )}
+
               {userRole === "seller" && (
                 <>
                   <Link to="/create-auction" className="header-link">
@@ -83,14 +107,16 @@ function Header() {
                   </Link>
                 </>
               )}
+
               {userRole === "admin" && (
-  <Link to="/admin" className="header-link">
-    Admin Panel
-  </Link>
-)}
-<Link to="/notifications" className="header-link">
-  Thông báo
-</Link>
+                <Link to="/admin" className="header-link">
+                  Admin Panel
+                </Link>
+              )}
+
+              <Link to="/notifications" className="header-link">
+                Thông báo {unreadCount > 0 ? `(${unreadCount})` : ""}
+              </Link>
 
               <span>Xin chào, {userName}</span>
 

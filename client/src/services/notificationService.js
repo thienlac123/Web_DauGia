@@ -17,3 +17,8 @@ export const markNotificationAsRead = async (id, token) => {
   const res = await axios.patch(`${API_URL}/${id}/read`, {}, authConfig(token));
   return res.data;
 };
+
+export const getUnreadNotificationCount = async (token) => {
+  const res = await axios.get(`${API_URL}/unread-count`, authConfig(token));
+  return res.data;
+};
