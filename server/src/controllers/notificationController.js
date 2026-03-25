@@ -1,3 +1,4 @@
+import Notification from "../models/Notification.js";
 import {
   getMyNotificationsService,
   markNotificationAsReadService,
@@ -30,6 +31,23 @@ export const markNotificationAsRead = async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({
+      message: error.message,
+    });
+  }
+};
+
+export const getUnreadNotificationCount = async (req, res) => {
+  try {
+    const count = await Notification.countDocuments({
+      userId: req.user.userId,
+      isRead: false,
+    });
+
+    res.status(200).json({
+      count,
+    });
+  } catch (error) {
+    res.status(500).json({
       message: error.message,
     });
   }
