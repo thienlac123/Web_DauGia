@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const auctionSchema = new mongoose.Schema(
   {
+    // --- NHÓM THÔNG TIN SẢN PHẨM ---
     title: {
       type: String,
       required: true,
@@ -11,6 +12,27 @@ const auctionSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    images: {
+      type: [String], // Lưu mảng URL hình ảnh
+      default: [],
+    },
+    category: {
+      type: String,
+      default: "Khác",
+      trim: true,
+    },
+    location: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    condition: {
+      type: String,
+      default: "Mới", // Ví dụ: Mới, Đã qua sử dụng
+      trim: true,
+    },
+
+    // --- NHÓM GIÁ CẢ & ĐẤU GIÁ ---
     startPrice: {
       type: Number,
       required: true,
@@ -26,6 +48,8 @@ const auctionSchema = new mongoose.Schema(
       default: 1000,
       min: 1,
     },
+
+    // --- NHÓM THỜI GIAN ---
     startTime: {
       type: Date,
       required: true,
@@ -34,37 +58,41 @@ const auctionSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+
+    // --- NHÓM NGƯỜI DÙNG LIÊN QUAN ---
     sellerId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     highestBidderId: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "User",
-  default: null,
-},
-winnerId: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: "User",
-  default: null,
-},
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    winnerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    // --- NHÓM TRẠNG THÁI HỆ THỐNG ---
     status: {
       type: String,
       enum: ["upcoming", "active", "ended", "cancelled"],
       default: "upcoming",
     },
     approvalStatus: {
-  type: String,
-  enum: ["pending", "approved", "rejected"],
-  default: "pending",
-},
-approvalNote: {
-  type: String,
-  default: "",
-},
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+    approvalNote: {
+      type: String,
+      default: "",
+    },
   },
-  { timestamps: true }
+  { timestamps: true } // Tự động tạo createdAt và updatedAt
 );
 
 export default mongoose.model("Auction", auctionSchema);

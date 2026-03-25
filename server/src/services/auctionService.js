@@ -27,6 +27,10 @@ export const createAuctionService = async ({
   startTime,
   endTime,
   sellerId,
+  images,
+  category,
+  location,
+  condition,
 }) => {
   if (!title || !startPrice || !startTime || !endTime) {
     throw new Error("Vui lòng nhập đầy đủ thông tin bắt buộc");
@@ -52,11 +56,14 @@ export const createAuctionService = async ({
     endTime,
     sellerId,
     status,
+    images: images || [],
+    category: category || "Khác",
+    location: location || "",
+    condition: condition || "",
   });
 
   return auction;
 };
-
 export const getAllAuctionsService = async ({ search, status, sort }) => {
   const query = {
     approvalStatus: "approved",
@@ -136,6 +143,10 @@ export const updateAuctionService = async (auctionId, userId, updateData) => {
   auction.startTime = mergedStartTime;
   auction.endTime = mergedEndTime;
   auction.status = calculateAuctionStatus(mergedStartTime, mergedEndTime);
+  auction.images = updateData.images ?? auction.images;
+  auction.category = updateData.category ?? auction.category;
+  auction.location = updateData.location ?? auction.location;
+  auction.condition = updateData.condition ?? auction.condition;
 
   if (
     updateData.startPrice !== undefined &&

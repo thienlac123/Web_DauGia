@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { getSellerAuctionDetail } from "../services/userService";
 import { getAuctionBids } from "../services/auctionService";
 import { getRemainingTime, getStatusLabel } from "../utils/time";
+
 function SellerAuctionDetailPage() {
   const { id } = useParams();
   const token = localStorage.getItem("token");
@@ -47,9 +48,54 @@ function SellerAuctionDetailPage() {
 
   return (
     <div>
+      {/* --- PHẦN 1: GALLERY HÌNH ẢNH --- */}
+      <div className="detail-card">
+        <h2 className="detail-section-title">Hình ảnh sản phẩm</h2>
+
+        {auction.images && auction.images.length > 0 ? (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "12px",
+            }}
+          >
+            {auction.images.map((img, index) => (
+              <img
+                key={index}
+                src={img}
+                alt={`${auction.title}-${index}`}
+                style={{
+                  width: "100%",
+                  height: "220px",
+                  objectFit: "cover",
+                  borderRadius: "12px",
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <p>Chưa có hình ảnh sản phẩm.</p>
+        )}
+      </div>
+
+      {/* --- PHẦN 2: THÔNG TIN CHI TIẾT --- */}
       <div className="detail-card">
         <h1 className="page-title">{auction.title}</h1>
         <p className="page-subtitle">{auction.description}</p>
+
+        {/* BỔ SUNG THÔNG TIN MỚI */}
+        <div style={{ marginBottom: "16px", padding: "10px", backgroundColor: "#f8fafc", borderRadius: "8px" }}>
+          <p>
+            <strong>Danh mục:</strong> {auction.category || "Khác"}
+          </p>
+          <p>
+            <strong>Địa điểm:</strong> {auction.location || "Chưa cập nhật"}
+          </p>
+          <p>
+            <strong>Tình trạng:</strong> {auction.condition || "Chưa cập nhật"}
+          </p>
+        </div>
 
         <p>
           <strong>Trạng thái duyệt:</strong>{" "}
@@ -62,7 +108,7 @@ function SellerAuctionDetailPage() {
 
         {auction.approvalStatus === "rejected" && auction.approvalNote && (
           <p>
-            <strong>Lý do từ chối:</strong> {auction.approvalNote}
+            <strong style={{ color: "red" }}>Lý do từ chối:</strong> {auction.approvalNote}
           </p>
         )}
 
@@ -108,6 +154,7 @@ function SellerAuctionDetailPage() {
         )}
       </div>
 
+      {/* --- PHẦN 3: LỊCH SỬ ĐẶT GIÁ --- */}
       <div className="detail-card">
         <h2 className="detail-section-title">Lịch sử đặt giá</h2>
 

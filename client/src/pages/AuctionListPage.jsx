@@ -17,7 +17,6 @@ function AuctionListPage() {
   const fetchAuctions = async () => {
     try {
       setLoading(true);
-
       const params = {};
       if (search) params.search = search;
       if (status) params.status = status;
@@ -40,7 +39,6 @@ function AuctionListPage() {
     const interval = setInterval(() => {
       setTick((prev) => prev + 1);
     }, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -63,16 +61,11 @@ function AuctionListPage() {
     <div>
       <div className="hero-banner">
         <h1>Danh sách sản phẩm đấu giá</h1>
-        <p>
-          Tìm kiếm, lọc theo trạng thái và theo dõi các phiên đấu giá đang diễn ra.
-        </p>
+        <p>Tìm kiếm, lọc theo trạng thái và theo dõi các phiên đấu giá.</p>
       </div>
 
       <div className="detail-card">
-        <form
-          onSubmit={handleFilter}
-          style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}
-        >
+        <form onSubmit={handleFilter} style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
           <input
             className="input-inline"
             type="text"
@@ -105,9 +98,7 @@ function AuctionListPage() {
             <option value="oldest">Cũ nhất</option>
           </select>
 
-          <button className="primary-btn" type="submit">
-            Lọc
-          </button>
+          <button className="primary-btn" type="submit">Lọc</button>
         </form>
       </div>
 
@@ -123,9 +114,34 @@ function AuctionListPage() {
                 {getStatusLabel(auction.status)}
               </span>
 
+              {/* HIỂN THỊ ẢNH ĐẦU TIÊN */}
+              {auction.images && auction.images.length > 0 ? (
+                <img
+                  src={auction.images[0]}
+                  alt={auction.title}
+                  style={{
+                    width: "100%",
+                    height: "200px",
+                    objectFit: "cover",
+                    borderRadius: "12px",
+                    marginBottom: "12px",
+                    marginTop: "12px",
+                  }}
+                />
+              ) : (
+                <div style={{ width: "100%", height: "200px", background: "#e2e8f0", borderRadius: "12px", marginBottom: "12px", marginTop: "12px", display: "flex", alignItems: "center", justifyContent: "center", color: "#475569", fontWeight: "600" }}>
+                  Không có ảnh
+                </div>
+              )}
+
               <h2>{auction.title}</h2>
 
               <p className="muted-text">{auction.description || "Không có mô tả"}</p>
+
+              {/* THÊM DANH MỤC Ở ĐÂY */}
+              <p>
+                <strong>Danh mục:</strong> {auction.category || "Khác"}
+              </p>
 
               <p>
                 <strong>Giá hiện tại:</strong>{" "}
@@ -137,15 +153,12 @@ function AuctionListPage() {
               </p>
 
               <p>
-                <strong>Kết thúc:</strong>{" "}
-                {new Date(auction.endTime).toLocaleString("vi-VN")}
+                <strong>Kết thúc:</strong> {new Date(auction.endTime).toLocaleString("vi-VN")}
               </p>
 
               <p>
                 <strong>Thời gian còn lại:</strong>{" "}
-                {auction.status === "ended"
-                  ? "Đã kết thúc"
-                  : getRemainingTime(auction.endTime)}
+                {auction.status === "ended" ? "Đã kết thúc" : getRemainingTime(auction.endTime)}
               </p>
 
               <div style={{ marginTop: "14px" }}>
