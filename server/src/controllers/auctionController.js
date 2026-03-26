@@ -7,6 +7,8 @@ import {
 } from "../services/auctionService.js";
 import User from "../models/User.js";
 import { createNotificationService } from "../services/notificationService.js";
+import { getEndedAuctionsService,getAuctionResultByIdService } 
+from "../services/auctionService.js";
 export const createAuction = async (req, res) => {
   try {
     const auction = await createAuctionService({
@@ -99,6 +101,35 @@ export const deleteAuction = async (req, res) => {
     res.status(200).json(result);
   } catch (error) {
     res.status(400).json({
+      message: error.message,
+    });
+  }
+};
+export const getEndedAuctions = async (req, res) => {
+  try {
+    const auctions = await getEndedAuctionsService();
+
+    res.status(200).json({
+      message: "Lấy danh sách kết quả đấu giá thành công",
+      auctions,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const getAuctionResultById = async (req, res) => {
+  try {
+    const result = await getAuctionResultByIdService(req.params.id);
+
+    res.status(200).json({
+      message: "Lấy chi tiết kết quả đấu giá thành công",
+      result,
+    });
+  } catch (error) {
+    res.status(404).json({
       message: error.message,
     });
   }

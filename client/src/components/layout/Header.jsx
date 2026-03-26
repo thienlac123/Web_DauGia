@@ -74,9 +74,11 @@ function Header() {
           <Link to="/" className="header-link">
             Home
           </Link>
-
           <Link to="/auctions" className="header-link">
             Danh sách đấu giá
+          </Link>
+          <Link to="/results" className="header-link">
+            Kết quả đấu giá
           </Link>
 
           {!token ? (

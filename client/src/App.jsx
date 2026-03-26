@@ -13,6 +13,8 @@ import BidderDashboardPage from "./pages/BidderDashboardPage";
 import AdminPanelPage from "./pages/AdminPanelPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import SellerAuctionDetailPage from "./pages/SellerAuctionDetailPage";
+import AuctionResultsPage from "./pages/AuctionResultsPage";
+import AuctionResultDetailPage from "./pages/AuctionResultDetailPage";
 
 function App() {
   return (
@@ -63,6 +65,8 @@ function App() {
     </RoleProtectedRoute>
   }
 />
+          <Route path="/results" element={<AuctionResultsPage />} />
+          <Route path="/results/:id" element={<AuctionResultDetailPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route

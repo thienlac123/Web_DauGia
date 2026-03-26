@@ -26,3 +26,13 @@ export const getAuctionBids = async (auctionId) => {
   const response = await axios.get(`${API_URL}/${auctionId}/bids`);
   return response.data;
 };
+
+export const getAuctionResults = async () => {
+  const response = await axios.get(`${API_URL}/results/all`);
+  return response.data;
+};
+
+export const getAuctionResultById = async (id) => {
+  const response = await axios.get(`${API_URL}/results/${id}`);
+  return response.data;
+};
