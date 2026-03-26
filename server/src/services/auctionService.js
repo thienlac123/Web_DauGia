@@ -1,5 +1,5 @@
 import Auction from "../models/Auction.js";
-
+import Bid from "../models/Bid.js";
 export const calculateAuctionStatus = (startTime, endTime) => {
   const now = new Date();
 
@@ -195,4 +195,58 @@ export const finalizeEndedAuctionService = async (auctionId) => {
   }
 
   return auction;
+};
+export const getEndedAuctionsService = async () => {
+  const auctions = await Auction.find({
+    status: "ended",
+    approvalStatus: "approved",
+  })
+    .populate("sellerId", "name email")
+    .populate("winnerId", "name email")
+    .populate("highestBidderId", "name email")
+    .sort({ endTime: -1 });
+
+  const results = await Promise.all(
+    auctions.map(async (auction) => {
+      const bidCount = await Bid.countDocuments({ auctionId: auction._id });
+
+      return {
+        ...auction.toObject(),
+        bidCount,
+        finalPrice: auction.currentPrice,
+        winner: auction.winnerId || auction.highestBidderId || null,
+      };
+    })
+  );
+
+  return results;
+};
+
+export const getAuctionResultByIdService = async (auctionId) => {
+  const auction = await Auction.findOne({
+    _id: auctionId,
+    status: "ended",
+    approvalStatus: "approved",
+  })
+    .populate("sellerId", "name email")
+    .populate("winnerId", "name email")
+    .populate("highestBidderId", "name email");
+
+  if (!auction) {
+    throw new Error("Không tìm thấy kết quả phiên đấu giá");
+  }
+
+  const bids = await Bid.find({ auctionId })
+    .populate("userId", "name email")
+    .sort({ createdAt: -1 });
+
+  const bidCount = bids.length;
+
+  return {
+    ...auction.toObject(),
+    bidCount,
+    finalPrice: auction.currentPrice,
+    winner: auction.winnerId || auction.highestBidderId || null,
+    bids,
+  };
 };
