@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getSellerAuctions } from "../services/userService";
+import {
+  getSellerAuctions,
+  getSellerAnalytics,
+} from "../services/userService";
 import { getRemainingTime, getStatusLabel } from "../utils/time";
 
 function SellerDashboardPage() {
   const [auctions, setAuctions] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [, setTick] = useState(0);
 
   useEffect(() => {
-    const fetchSellerAuctions = async () => {
+    const fetchSellerData = async () => {
       try {
         const token = localStorage.getItem("token");
 
@@ -20,18 +24,23 @@ function SellerDashboardPage() {
           return;
         }
 
-        const data = await getSellerAuctions(token);
-        setAuctions(data.auctions || []);
+        const [auctionData, analyticsData] = await Promise.all([
+          getSellerAuctions(token),
+          getSellerAnalytics(token),
+        ]);
+
+        setAuctions(auctionData.auctions || []);
+        setAnalytics(analyticsData.analytics || null);
       } catch (err) {
         setError(
-          err.response?.data?.message || "Không thể tải danh sách phiên đã tạo"
+          err.response?.data?.message || "Không thể tải dashboard người tạo"
         );
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSellerAuctions();
+    fetchSellerData();
   }, []);
 
   useEffect(() => {
@@ -58,7 +67,7 @@ function SellerDashboardPage() {
         <div>
           <h1 className="page-title">Dashboard người tạo phiên đấu giá</h1>
           <p className="page-subtitle">
-            Quản lý các phiên đấu giá bạn đã tạo trên hệ thống.
+            Quản lý phiên đấu giá, theo dõi kết quả và doanh thu của bạn.
           </p>
         </div>
 
@@ -66,6 +75,40 @@ function SellerDashboardPage() {
           <button className="primary-btn">Tạo phiên mới</button>
         </Link>
       </div>
+
+      {analytics && (
+        <div className="analytics-grid">
+          <div className="analytics-card">
+            <h3>Tổng số phiên đã tạo</h3>
+            <p>{analytics.totalAuctions}</p>
+          </div>
+
+          <div className="analytics-card">
+            <h3>Số phiên đã duyệt</h3>
+            <p>{analytics.approvedAuctions}</p>
+          </div>
+
+          <div className="analytics-card">
+            <h3>Số phiên đã kết thúc</h3>
+            <p>{analytics.endedAuctions}</p>
+          </div>
+
+          <div className="analytics-card">
+            <h3>Phiên bán thành công</h3>
+            <p>{analytics.successfulAuctions}</p>
+          </div>
+
+          <div className="analytics-card">
+            <h3>Tổng lượt bid nhận được</h3>
+            <p>{analytics.totalBids}</p>
+          </div>
+
+          <div className="analytics-card">
+            <h3>Tổng doanh thu</h3>
+            <p>{analytics.totalRevenue?.toLocaleString("vi-VN")}đ</p>
+          </div>
+        </div>
+      )}
 
       {auctions.length === 0 ? (
         <div className="detail-card">
@@ -79,7 +122,6 @@ function SellerDashboardPage() {
                 {getStatusLabel(auction.status)}
               </span>
 
-              {/* --- PHẦN 1: THÊM ẢNH SẢN PHẨM --- */}
               {auction.images && auction.images.length > 0 ? (
                 <img
                   src={auction.images[0]}
@@ -90,7 +132,6 @@ function SellerDashboardPage() {
                     objectFit: "cover",
                     borderRadius: "12px",
                     marginBottom: "12px",
-                    marginTop: "12px",
                   }}
                 />
               ) : (
@@ -101,7 +142,6 @@ function SellerDashboardPage() {
                     background: "#e2e8f0",
                     borderRadius: "12px",
                     marginBottom: "12px",
-                    marginTop: "12px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -116,12 +156,10 @@ function SellerDashboardPage() {
 
               <p className="muted-text">{auction.description || "Không có mô tả"}</p>
 
-              {/* --- PHẦN 2: THÊM DANH MỤC --- */}
               <p>
                 <strong>Danh mục:</strong> {auction.category || "Khác"}
               </p>
 
-              {/* --- PHẦN TRẠNG THÁI DUYỆT CỦA BẠN --- */}
               <p>
                 <strong>Trạng thái duyệt:</strong>{" "}
                 {auction.approvalStatus === "pending"
@@ -133,7 +171,7 @@ function SellerDashboardPage() {
 
               {auction.approvalStatus === "rejected" && auction.approvalNote && (
                 <p>
-                  <strong style={{ color: "red" }}>Lý do từ chối:</strong> {auction.approvalNote}
+                  <strong>Lý do từ chối:</strong> {auction.approvalNote}
                 </p>
               )}
 
@@ -149,9 +187,7 @@ function SellerDashboardPage() {
 
               <p>
                 <strong>Người dẫn đầu:</strong>{" "}
-                {auction.highestBidderId
-                  ? auction.highestBidderId.name
-                  : "Chưa có"}
+                {auction.highestBidderId ? auction.highestBidderId.name : "Chưa có"}
               </p>
 
               <p>

@@ -21,3 +21,12 @@ export const getSellerAuctionDetail = async (id, token) => {
 
   return response.data;
 };
+export const getSellerAnalytics = async (token) => {
+  const response = await axios.get(`${API_URL}/seller/analytics`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};

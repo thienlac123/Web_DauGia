@@ -74,3 +74,58 @@ export const getSellerAuctionDetail = async (req, res) => {
     });
   }
 };
+export const getSellerAnalytics = async (req, res) => {
+  try {
+    const sellerId = req.user.userId;
+
+    const auctions = await Auction.find({ sellerId });
+
+    const totalAuctions = auctions.length;
+    const approvedAuctions = auctions.filter(
+      (auction) => auction.approvalStatus === "approved"
+    ).length;
+
+    const endedAuctions = auctions.filter(
+      (auction) => auction.status === "ended"
+    ).length;
+
+    const successfulAuctions = auctions.filter(
+      (auction) =>
+        auction.status === "ended" &&
+        auction.approvalStatus === "approved" &&
+        auction.winnerId
+    ).length;
+
+    const totalRevenue = auctions.reduce((sum, auction) => {
+      if (
+        auction.status === "ended" &&
+        auction.approvalStatus === "approved" &&
+        auction.winnerId
+      ) {
+        return sum + (auction.currentPrice || 0);
+      }
+      return sum;
+    }, 0);
+
+    const auctionIds = auctions.map((auction) => auction._id);
+
+    const totalBids = await Bid.countDocuments({
+      auctionId: { $in: auctionIds },
+    });
+
+    res.status(200).json({
+      analytics: {
+        totalAuctions,
+        approvedAuctions,
+        endedAuctions,
+        successfulAuctions,
+        totalRevenue,
+        totalBids,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
