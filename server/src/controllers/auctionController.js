@@ -7,8 +7,8 @@ import {
 } from "../services/auctionService.js";
 import User from "../models/User.js";
 import { createNotificationService } from "../services/notificationService.js";
-import { getEndedAuctionsService,getAuctionResultByIdService } 
-from "../services/auctionService.js";
+import { getEndedAuctionsService,getAuctionResultByIdService } from "../services/auctionService.js";
+import Auction from "../models/Auction.js";
 export const createAuction = async (req, res) => {
   try {
     const auction = await createAuctionService({
@@ -130,6 +130,47 @@ export const getAuctionResultById = async (req, res) => {
     });
   } catch (error) {
     res.status(404).json({
+      message: error.message,
+    });
+  }
+};
+export const payAuctionResult = async (req, res) => {
+  try {
+    const auction = await Auction.findById(req.params.id);
+
+    if (!auction) {
+      return res.status(404).json({
+        message: "Không tìm thấy phiên đấu giá",
+      });
+    }
+
+    if (auction.status !== "ended") {
+      return res.status(400).json({
+        message: "Phiên đấu giá chưa kết thúc",
+      });
+    }
+
+    if (!auction.winnerId) {
+      return res.status(400).json({
+        message: "Phiên đấu giá chưa có người thắng",
+      });
+    }
+
+    if (auction.winnerId.toString() !== req.user.userId) {
+      return res.status(403).json({
+        message: "Chỉ người thắng mới được thanh toán",
+      });
+    }
+
+    auction.paymentStatus = "paid";
+    await auction.save();
+
+    res.status(200).json({
+      message: "Thanh toán thành công",
+      auction,
+    });
+  } catch (error) {
+    res.status(500).json({
       message: error.message,
     });
   }

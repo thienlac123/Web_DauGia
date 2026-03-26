@@ -4,6 +4,7 @@ export const getSellerAuctions = async (req, res) => {
   try {
     const auctions = await Auction.find({ sellerId: req.user.userId })
       .populate("highestBidderId", "name email")
+      .populate("winnerId", "name email")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -57,6 +58,7 @@ export const getSellerAuctionDetail = async (req, res) => {
       sellerId: req.user.userId,
     })
       .populate("highestBidderId", "name email")
+      .populate("winnerId", "name email")
       .populate("sellerId", "name email");
 
     if (!auction) {

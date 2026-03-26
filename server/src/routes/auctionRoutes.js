@@ -7,6 +7,7 @@ import {
   deleteAuction,
   getEndedAuctions,
   getAuctionResultById,
+  payAuctionResult,
 } from "../controllers/auctionController.js";
 import { placeBid, getAuctionBids } from "../controllers/bidController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -21,8 +22,8 @@ router.get("/:id/bids", getAuctionBids);
 
 router.post("/", authMiddleware, createAuction);
 router.post("/:id/bid", authMiddleware, placeBid);
-
 router.put("/:id", authMiddleware, updateAuction);
 router.delete("/:id", authMiddleware, deleteAuction);
+router.patch("/:id/pay", authMiddleware, payAuctionResult);
 
 export default router;

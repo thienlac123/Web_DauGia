@@ -84,7 +84,6 @@ function SellerAuctionDetailPage() {
         <h1 className="page-title">{auction.title}</h1>
         <p className="page-subtitle">{auction.description}</p>
 
-        {/* BỔ SUNG THÔNG TIN MỚI */}
         <div style={{ marginBottom: "16px", padding: "10px", backgroundColor: "#f8fafc", borderRadius: "8px" }}>
           <p>
             <strong>Danh mục:</strong> {auction.category || "Khác"}
@@ -144,6 +143,33 @@ function SellerAuctionDetailPage() {
             ? "Đã kết thúc"
             : getRemainingTime(auction.endTime)}
         </p>
+
+        {/* BẮT ĐẦU PHẦN BỔ SUNG */}
+        {auction.status === "ended" && (
+          <div style={{ marginTop: "10px", padding: "10px", borderTop: "1px dashed #ccc" }}>
+            <p>
+              <strong>Người chiến thắng:</strong>{" "}
+              {auction.winnerId
+                ? `${auction.winnerId.name} - ${auction.winnerId.email}`
+                : "Không có"}
+            </p>
+
+            <p>
+              <strong>Giá chốt:</strong>{" "}
+              {auction.currentPrice?.toLocaleString("vi-VN")} VND
+            </p>
+
+            <p>
+              <strong>Trạng thái thanh toán:</strong>{" "}
+              {auction.paymentStatus === "paid"
+                ? "Đã thanh toán"
+                : auction.paymentStatus === "pending"
+                ? "Chờ thanh toán"
+                : "Chưa thanh toán"}
+            </p>
+          </div>
+        )}
+        {/* KẾT THÚC PHẦN BỔ SUNG */}
 
         {auction.approvalStatus === "approved" && (
           <div style={{ marginTop: "16px" }}>

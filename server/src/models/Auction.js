@@ -75,6 +75,11 @@ const auctionSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+     paymentStatus: {
+      type: String,
+      enum: ["unpaid", "pending","paid", "failed"],
+      default: "unpaid",
+    },
 
     // --- NHÓM TRẠNG THÁI HỆ THỐNG ---
     status: {
@@ -91,6 +96,7 @@ const auctionSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+   
   },
   { timestamps: true } // Tự động tạo createdAt và updatedAt
 );
