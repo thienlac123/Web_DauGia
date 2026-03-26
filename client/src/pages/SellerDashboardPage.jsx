@@ -154,7 +154,9 @@ function SellerDashboardPage() {
 
               <h2>{auction.title}</h2>
 
-              <p className="muted-text">{auction.description || "Không có mô tả"}</p>
+              <p className="muted-text">
+                {auction.description || "Không có mô tả"}
+              </p>
 
               <p>
                 <strong>Danh mục:</strong> {auction.category || "Khác"}
@@ -187,7 +189,9 @@ function SellerDashboardPage() {
 
               <p>
                 <strong>Người dẫn đầu:</strong>{" "}
-                {auction.highestBidderId ? auction.highestBidderId.name : "Chưa có"}
+                {auction.highestBidderId
+                  ? auction.highestBidderId.name
+                  : "Chưa có"}
               </p>
 
               <p>
@@ -201,6 +205,33 @@ function SellerDashboardPage() {
                   ? "Đã kết thúc"
                   : getRemainingTime(auction.endTime)}
               </p>
+
+              {/* Bắt đầu phần bổ sung */}
+              {auction.status === "ended" && (
+  <>
+    <p>
+      <strong>Người chiến thắng:</strong>{" "}
+      {auction.winnerId
+        ? `${auction.winnerId.name} - ${auction.winnerId.email}`
+        : "Không có"}
+    </p>
+
+    <p>
+      <strong>Giá chốt:</strong>{" "}
+      {auction.currentPrice?.toLocaleString("vi-VN")} VND
+    </p>
+
+    <p>
+      <strong>Thanh toán:</strong>{" "}
+      {auction.paymentStatus === "paid"
+        ? "Đã thanh toán"
+        : auction.paymentStatus === "pending"
+        ? "Chờ thanh toán"
+        : "Chưa thanh toán"}
+    </p>
+  </>
+)}
+              {/* Kết thúc phần bổ sung */}
 
               <div style={{ marginTop: "14px", display: "flex", gap: "10px" }}>
                 <Link to={`/seller/auctions/${auction._id}`}>

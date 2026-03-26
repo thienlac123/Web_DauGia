@@ -1,5 +1,7 @@
 import Auction from "../models/Auction.js";
 import Bid from "../models/Bid.js";
+
+// 1. Helper: tính trạng thái phiên đấu giá
 export const calculateAuctionStatus = (startTime, endTime) => {
   const now = new Date();
 
@@ -8,17 +10,34 @@ export const calculateAuctionStatus = (startTime, endTime) => {
   return "active";
 };
 
-export const refreshAuctionStatus = async (auction) => {
-  const newStatus = calculateAuctionStatus(auction.startTime, auction.endTime);
+// 2. Đồng bộ trạng thái + chốt người thắng nếu phiên đã kết thúc
+export const finalizeAuctionIfEnded = async (auction) => {
+  const latestStatus = calculateAuctionStatus(auction.startTime, auction.endTime);
+  let changed = false;
 
-  if (auction.status !== newStatus) {
-    auction.status = newStatus;
+  if (auction.status !== latestStatus) {
+    auction.status = latestStatus;
+    changed = true;
+  }
+
+  if (auction.status === "ended" && !auction.winnerId && auction.highestBidderId) {
+    auction.winnerId = auction.highestBidderId;
+
+    if (!auction.paymentStatus || auction.paymentStatus === "unpaid") {
+      auction.paymentStatus = "pending";
+    }
+
+    changed = true;
+  }
+
+  if (changed) {
     await auction.save();
   }
 
   return auction;
 };
 
+// 3. Tạo phiên đấu giá
 export const createAuctionService = async ({
   title,
   description,
@@ -64,6 +83,8 @@ export const createAuctionService = async ({
 
   return auction;
 };
+
+// 4. Lấy danh sách đấu giá public
 export const getAllAuctionsService = async ({ search, status, sort }) => {
   const query = {
     approvalStatus: "approved",
@@ -90,34 +111,33 @@ export const getAllAuctionsService = async ({ search, status, sort }) => {
   const auctions = await Auction.find(query)
     .populate("sellerId", "name email")
     .populate("highestBidderId", "name email")
+    .populate("winnerId", "name email")
     .sort(sortOption);
 
   for (const auction of auctions) {
-    await refreshAuctionStatus(auction);
+    await finalizeAuctionIfEnded(auction);
   }
 
   return auctions;
 };
 
+// 5. Lấy chi tiết 1 phiên đấu giá
 export const getAuctionByIdService = async (auctionId) => {
   const auction = await Auction.findById(auctionId)
     .populate("sellerId", "name email")
-    .populate("highestBidderId", "name email");
+    .populate("highestBidderId", "name email")
+    .populate("winnerId", "name email");
 
   if (!auction) {
     throw new Error("Không tìm thấy phiên đấu giá");
   }
 
-    await refreshAuctionStatus(auction);
-
-  if (auction.status === "ended" && !auction.winnerId && auction.highestBidderId) {
-    auction.winnerId = auction.highestBidderId;
-    await auction.save();
-  }
+  await finalizeAuctionIfEnded(auction);
 
   return auction;
 };
 
+// 6. Cập nhật phiên đấu giá
 export const updateAuctionService = async (auctionId, userId, updateData) => {
   const auction = await Auction.findById(auctionId);
 
@@ -129,6 +149,9 @@ export const updateAuctionService = async (auctionId, userId, updateData) => {
     throw new Error("Bạn không có quyền cập nhật phiên đấu giá này");
   }
 
+  const originalStartPrice = auction.startPrice;
+  const originalCurrentPrice = auction.currentPrice;
+
   const mergedStartTime = updateData.startTime || auction.startTime;
   const mergedEndTime = updateData.endTime || auction.endTime;
 
@@ -138,28 +161,30 @@ export const updateAuctionService = async (auctionId, userId, updateData) => {
 
   auction.title = updateData.title ?? auction.title;
   auction.description = updateData.description ?? auction.description;
-  auction.startPrice = updateData.startPrice ?? auction.startPrice;
   auction.minBidStep = updateData.minBidStep ?? auction.minBidStep;
   auction.startTime = mergedStartTime;
   auction.endTime = mergedEndTime;
-  auction.status = calculateAuctionStatus(mergedStartTime, mergedEndTime);
+
   auction.images = updateData.images ?? auction.images;
   auction.category = updateData.category ?? auction.category;
   auction.location = updateData.location ?? auction.location;
   auction.condition = updateData.condition ?? auction.condition;
 
-  if (
-    updateData.startPrice !== undefined &&
-    auction.currentPrice === auction.startPrice
-  ) {
-    auction.currentPrice = updateData.startPrice;
+  if (updateData.startPrice !== undefined) {
+    auction.startPrice = updateData.startPrice;
+
+    if (originalCurrentPrice === originalStartPrice) {
+      auction.currentPrice = updateData.startPrice;
+    }
   }
 
-  await auction.save();
+  auction.status = calculateAuctionStatus(mergedStartTime, mergedEndTime);
 
+  await auction.save();
   return auction;
 };
 
+// 7. Xóa phiên đấu giá
 export const deleteAuctionService = async (auctionId, userId) => {
   const auction = await Auction.findById(auctionId);
 
@@ -175,30 +200,10 @@ export const deleteAuctionService = async (auctionId, userId) => {
 
   return { message: "Xóa phiên đấu giá thành công" };
 };
-export const finalizeEndedAuctionService = async (auctionId) => {
-  const auction = await Auction.findById(auctionId);
 
-  if (!auction) {
-    throw new Error("Không tìm thấy phiên đấu giá");
-  }
-
-  const latestStatus = calculateAuctionStatus(auction.startTime, auction.endTime);
-
-  if (latestStatus === "ended") {
-    auction.status = "ended";
-
-    if (auction.highestBidderId) {
-      auction.winnerId = auction.highestBidderId;
-    }
-
-    await auction.save();
-  }
-
-  return auction;
-};
+// 8. Lấy danh sách kết quả đấu giá
 export const getEndedAuctionsService = async () => {
   const auctions = await Auction.find({
-    status: "ended",
     approvalStatus: "approved",
   })
     .populate("sellerId", "name email")
@@ -206,8 +211,18 @@ export const getEndedAuctionsService = async () => {
     .populate("highestBidderId", "name email")
     .sort({ endTime: -1 });
 
+  const finalizedAuctions = [];
+
+  for (const auction of auctions) {
+    await finalizeAuctionIfEnded(auction);
+
+    if (auction.status === "ended") {
+      finalizedAuctions.push(auction);
+    }
+  }
+
   const results = await Promise.all(
-    auctions.map(async (auction) => {
+    finalizedAuctions.map(async (auction) => {
       const bidCount = await Bid.countDocuments({ auctionId: auction._id });
 
       return {
@@ -222,10 +237,10 @@ export const getEndedAuctionsService = async () => {
   return results;
 };
 
+// 9. Lấy chi tiết kết quả 1 phiên đấu giá
 export const getAuctionResultByIdService = async (auctionId) => {
   const auction = await Auction.findOne({
     _id: auctionId,
-    status: "ended",
     approvalStatus: "approved",
   })
     .populate("sellerId", "name email")
@@ -234,6 +249,12 @@ export const getAuctionResultByIdService = async (auctionId) => {
 
   if (!auction) {
     throw new Error("Không tìm thấy kết quả phiên đấu giá");
+  }
+
+  await finalizeAuctionIfEnded(auction);
+
+  if (auction.status !== "ended") {
+    throw new Error("Phiên đấu giá chưa kết thúc");
   }
 
   const bids = await Bid.find({ auctionId })
