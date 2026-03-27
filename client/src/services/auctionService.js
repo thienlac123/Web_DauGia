@@ -18,7 +18,6 @@ export const createAuction = async (auctionData, token) => {
       Authorization: `Bearer ${token}`,
     },
   });
-
   return response.data;
 };
 
@@ -34,18 +33,5 @@ export const getAuctionResults = async () => {
 
 export const getAuctionResultById = async (id) => {
   const response = await axios.get(`${API_URL}/results/${id}`);
-  return response.data;
-};
-export const payAuction = async (id, token) => {
-  const response = await axios.patch(
-    `${API_URL}/${id}/pay`,
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
   return response.data;
 };

@@ -1,5 +1,6 @@
 import Auction from "../models/Auction.js";
 import Bid from "../models/Bid.js";
+import User from "../models/User.js";
 export const getSellerAuctions = async (req, res) => {
   try {
     const auctions = await Auction.find({ sellerId: req.user.userId })
@@ -129,5 +130,55 @@ export const getSellerAnalytics = async (req, res) => {
     res.status(500).json({
       message: error.message,
     });
+  }
+};
+export const getMyProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateMyProfile = async (req, res) => {
+  try {
+    const { name, fullName, phone, avatar, address } = req.body;
+
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    user.name = name ?? user.name;
+    user.fullName = fullName ?? user.fullName;
+    user.phone = phone ?? user.phone;
+    user.avatar = avatar ?? user.avatar;
+
+    if (address) {
+      user.address = {
+        province: address.province ?? user.address?.province ?? "",
+        district: address.district ?? user.address?.district ?? "",
+        ward: address.ward ?? user.address?.ward ?? "",
+        detail: address.detail ?? user.address?.detail ?? "",
+      };
+    }
+
+    user.isProfileCompleted = Boolean(
+      user.fullName && user.phone && user.address?.detail
+    );
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Cập nhật hồ sơ thành công",
+      user: await User.findById(user._id).select("-password"),
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };

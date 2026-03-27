@@ -41,12 +41,17 @@ export const registerUser = async ({ name, email, password, role }) => {
   const token = generateToken(user);
 
   return {
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
+   user: {
+  id: user._id,
+  name: user.name,
+  fullName: user.fullName,
+  email: user.email,
+  phone: user.phone,
+  avatar: user.avatar,
+  address: user.address,
+  role: user.role,
+  isProfileCompleted: user.isProfileCompleted,
+},
     token,
   };
 };
@@ -70,11 +75,16 @@ export const loginUser = async ({ email, password }) => {
 
   return {
     user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
+  id: user._id,
+  name: user.name,
+  fullName: user.fullName,
+  email: user.email,
+  phone: user.phone,
+  avatar: user.avatar,
+  address: user.address,
+  role: user.role,
+  isProfileCompleted: user.isProfileCompleted,
+},
     token,
   };
 };

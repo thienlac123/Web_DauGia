@@ -1,10 +1,25 @@
 import mongoose from "mongoose";
 
+const addressSchema = new mongoose.Schema(
+  {
+    province: { type: String, default: "" },
+    district: { type: String, default: "" },
+    ward: { type: String, default: "" },
+    detail: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
+      trim: true,
+    },
+    fullName: {
+      type: String,
+      default: "",
       trim: true,
     },
     email: {
@@ -19,6 +34,20 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    phone: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    avatar: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    address: {
+      type: addressSchema,
+      default: () => ({}),
+    },
     role: {
       type: String,
       enum: ["buyer", "seller", "admin"],
@@ -27,7 +56,11 @@ const userSchema = new mongoose.Schema(
     isBlocked: {
       type: Boolean,
       default: false,
-    },  
+    },
+    isProfileCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
