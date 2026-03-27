@@ -6,6 +6,7 @@ export const createNotificationService = async ({
   message,
   type,
   relatedAuctionId = null,
+  relatedOrderId = null,
 }) => {
   const notification = await Notification.create({
     userId,
@@ -13,15 +14,14 @@ export const createNotificationService = async ({
     message,
     type,
     relatedAuctionId,
+    relatedOrderId,
   });
 
   return notification;
 };
 
 export const getMyNotificationsService = async (userId) => {
-  const notifications = await Notification.find({ userId })
-    .sort({ createdAt: -1 });
-
+  const notifications = await Notification.find({ userId }).sort({ createdAt: -1 });
   return notifications;
 };
 

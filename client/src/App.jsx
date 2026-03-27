@@ -15,6 +15,12 @@ import NotificationsPage from "./pages/NotificationsPage";
 import SellerAuctionDetailPage from "./pages/SellerAuctionDetailPage";
 import AuctionResultsPage from "./pages/AuctionResultsPage";
 import AuctionResultDetailPage from "./pages/AuctionResultDetailPage";
+import SellerOrdersPage from "./pages/SellerOrdersPage";
+import MyOrdersPage from "./pages/MyOrdersPage";
+import AdminOrdersPage from "./pages/AdminOrdersPage";
+import PaymentResultPage from "./pages/PaymentResultPage";
+import ProfilePage from "./pages/ProfilePage";
+
 
 function App() {
   return (
@@ -25,13 +31,13 @@ function App() {
           <Route path="/auctions" element={<AuctionListPage />} />
           <Route path="/auctions/:id" element={<AuctionDetailPage />} />
           <Route
-  path="/create-auction"
-  element={
-    <RoleProtectedRoute role="seller">
-      <CreateAuctionPage />
-    </RoleProtectedRoute>
-  }
-/>
+            path="/create-auction"
+            element={
+              <RoleProtectedRoute role="seller">
+                <CreateAuctionPage />
+              </RoleProtectedRoute>
+            }
+          />
           <Route
             path="/seller/dashboard"
             element={
@@ -41,42 +47,74 @@ function App() {
             }
           />
           <Route
-  path="/seller/auctions/:id"
-  element={
-    <RoleProtectedRoute role="seller">
-      <SellerAuctionDetailPage />
-    </RoleProtectedRoute>
-  }
-/>
+            path="/seller/auctions/:id"
+            element={
+              <RoleProtectedRoute role="seller">
+                <SellerAuctionDetailPage />
+              </RoleProtectedRoute>
+            }
+          />
           <Route
-  path="/notifications"
+  path="/profile"
   element={
     <ProtectedRoute>
-      <NotificationsPage />
+      <ProfilePage />
     </ProtectedRoute>
   }
 />
           <Route
-          
-  path="/bidder/dashboard"
-  element={
-    <RoleProtectedRoute role="buyer">
-      <BidderDashboardPage />
-    </RoleProtectedRoute>
-  }
-/>
+            path="/seller/orders"
+            element={
+              <RoleProtectedRoute role="seller">
+                <SellerOrdersPage />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-orders"
+            element={
+              <RoleProtectedRoute role="buyer">
+                <MyOrdersPage />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <RoleProtectedRoute role="admin">
+                <AdminOrdersPage />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bidder/dashboard"
+            element={
+              <RoleProtectedRoute role="buyer">
+                <BidderDashboardPage />
+              </RoleProtectedRoute>
+            }
+          />
           <Route path="/results" element={<AuctionResultsPage />} />
           <Route path="/results/:id" element={<AuctionResultDetailPage />} />
+          <Route path="/payment-result" element={<PaymentResultPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route
-  path="/admin"
-  element={
-    <RoleProtectedRoute role="admin">
-      <AdminPanelPage />
-    </RoleProtectedRoute>
-  }
-/>
+            path="/admin"
+            element={
+              <RoleProtectedRoute role="admin">
+                <AdminPanelPage />
+              </RoleProtectedRoute>
+            }
+          />
         </Routes>
       </MainLayout>
     </BrowserRouter>

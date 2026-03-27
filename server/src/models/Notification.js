@@ -19,7 +19,16 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["auction_approved", "auction_rejected", "system"],
+      enum: [
+        "auction_approved",
+        "auction_rejected",
+        "order_paid",
+        "order_preparing",
+        "order_shipping",
+        "order_meetup",
+        "order_completed",
+        "system",
+      ],
       default: "system",
     },
     isRead: {
@@ -29,6 +38,11 @@ const notificationSchema = new mongoose.Schema(
     relatedAuctionId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Auction",
+      default: null,
+    },
+    relatedOrderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Order",
       default: null,
     },
   },

@@ -30,3 +30,20 @@ export const getSellerAnalytics = async (token) => {
 
   return response.data;
 };
+export const getMyProfile = async (token) => {
+  const response = await axios.get(`${API_URL}/profile`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
+
+export const updateMyProfile = async (profileData, token) => {
+  const response = await axios.patch(`${API_URL}/profile`, profileData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response.data;
+};
