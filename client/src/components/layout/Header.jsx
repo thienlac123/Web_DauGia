@@ -100,9 +100,9 @@ function Header() {
 
               {userRole === "seller" && (
                 <>
-                  <Link to="/create-auction" className="header-link">
+                  {/* <Link to="/create-auction" className="header-link">
                     Tạo phiên đấu giá
-                  </Link>
+                  </Link> */}
 
                   <Link to="/seller/dashboard" className="header-link">
                     Dashboard người tạo
