@@ -46,20 +46,29 @@ function AuctionDetailPage() {
       if (data.auction?._id === id) {
         setAuction(data.auction);
         setBids((prev) => [data.bid, ...prev]);
-        setMessage("⚡ Có giá đấu mới!");
+        setMessage("✅ Đặt giá thành công!");
+        setTimeout(() => setMessage(""), 3000);
       }
     };
+    const handleSocketError = (error) => {
+      setMessage(`❌ Lỗi: ${error.message}`);
+      setTimeout(() => setMessage(""), 5000);
+    };
     socket.on("bid_updated", handleBidUpdated);
+    socket.on("socket_error", handleSocketError);
     return () => {
       socket.emit("leave_auction", id);
       socket.off("bid_updated", handleBidUpdated);
+      socket.off("socket_error", handleSocketError);
     };
   }, [id]);
 
   const handlePlaceBid = () => {
     if (!userId) return setMessage("Vui lòng đăng nhập để đấu giá");
     if (!bidAmount) return setMessage("Vui lòng nhập số tiền");
+    if (Number(bidAmount) <= auction.currentPrice) return setMessage("Giá phải lớn hơn giá hiện tại");
     socket.emit("place_bid", { auctionId: id, userId, bidAmount: Number(bidAmount) });
+    setMessage("⏳ Đang xử lý...");
     setBidAmount("");
   };
 
@@ -146,8 +155,8 @@ function AuctionDetailPage() {
                   </div>
 
                   <div className="bg-[#020617]/50 p-4 rounded-2xl border border-white/5">
-                    <p className="text-[10px] text-slate-500 uppercase font-black mb-1">Thời gian còn lại</p>
-                    <p className="text-xl font-black text-emerald-400 font-mono">
+                    <p className="text-[10px] text-slate-500 uppercase font-black mb-2">Thời gian còn lại</p>
+                    <p className="text-sm md:text-lg font-black text-emerald-400 font-mono leading-tight break-words">
                        {auction.status === "ended" ? "Đã kết thúc" : getRemainingTime(auction.endTime)}
                     </p>
                   </div>
@@ -184,10 +193,10 @@ function AuctionDetailPage() {
                     <div key={bid._id} className="flex justify-between items-center p-4 bg-white/[0.02] border border-white/5 rounded-2xl group hover:bg-white/5 transition-all">
                       <div>
                         <p className="text-sm font-bold text-white group-hover:text-blue-400 transition-colors line-clamp-1">{bid.userId?.name}</p>
-                        <p className="text-[10px] text-slate-500">{new Date(bid.createdAt).toLocaleTimeString("vi-VN")}</p>
+                        <p className="text-[10px] text-slate-500">{new Date(bid.createdAt).toLocaleString("vi-VN")}</p>
                       </div>
                       <p className="font-black text-white text-sm">
-                        +{bid.bidAmount?.toLocaleString("vi-VN")}
+                        +{bid.bidAmount?.toLocaleString("vi-VN")}đ
                       </p>
                     </div>
                   ))
