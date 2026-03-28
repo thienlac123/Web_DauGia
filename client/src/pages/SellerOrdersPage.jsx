@@ -6,11 +6,10 @@ import {
   scheduleMeetup,
 } from "../services/orderService";
 
-// Styled components giả lập qua object style để bạn dễ copy-paste
 const styles = {
   container: {
     padding: "40px 20px",
-    backgroundColor: "#050a18", // Tông màu nền tối như ảnh
+    backgroundColor: "#050a18",
     minHeight: "100vh",
     color: "#ffffff",
     fontFamily: "'Inter', sans-serif",
@@ -19,70 +18,48 @@ const styles = {
     fontSize: "2rem",
     fontWeight: "bold",
     marginBottom: "30px",
-    background: "linear-gradient(90deg, #4facfe 0%, #00f2fe 100%)",
+    background: "linear-gradient(90deg, #38bdf8 0%, #2dd4bf 100%)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     textAlign: "center",
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))",
     gap: "24px",
     maxWidth: "1200px",
     margin: "0 auto",
   },
   card: {
-    background: "rgba(255, 255, 255, 0.05)", // Hiệu ứng glassmorphism nhẹ
+    background: "rgba(255, 255, 255, 0.03)",
     backdropFilter: "blur(10px)",
     border: "1px solid rgba(255, 255, 255, 0.1)",
     borderRadius: "20px",
     padding: "24px",
-    transition: "transform 0.3s ease",
-    boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
-  },
-  title: {
-    fontSize: "1.25rem",
-    color: "#00f2fe",
-    marginBottom: "16px",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-    paddingBottom: "12px",
-  },
-  infoText: {
-    fontSize: "0.95rem",
-    margin: "8px 0",
-    color: "#cbd5e1",
+    boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.3)",
   },
   statusBadge: {
     display: "inline-block",
     padding: "4px 12px",
-    borderRadius: "20px",
-    fontSize: "0.8rem",
+    borderRadius: "12px",
+    fontSize: "0.75rem",
     fontWeight: "bold",
-    backgroundColor: "#1e293b",
+    backgroundColor: "rgba(56, 189, 248, 0.1)",
     color: "#38bdf8",
-    marginBottom: "15px",
+    marginBottom: "16px",
+    border: "1px solid rgba(56, 189, 248, 0.2)",
   },
-  buttonGroup: {
-    display: "flex",
-    gap: "10px",
-    marginTop: "20px",
-    flexWrap: "wrap",
+  infoText: { margin: "8px 0", color: "#94a3b8", fontSize: "0.95rem" },
+  price: { fontSize: "1.2rem", fontWeight: "bold", color: "#fbbf24" },
+  buttonGroup: { display: "flex", gap: "10px", marginTop: "20px", flexWrap: "wrap" },
+  btnPrimary: {
+    padding: "10px 16px", borderRadius: "10px", border: "none",
+    background: "#38bdf8", color: "#0f172a", fontWeight: "bold", cursor: "pointer",
   },
-  button: {
-    padding: "10px 16px",
-    borderRadius: "10px",
-    border: "none",
-    cursor: "pointer",
-    fontWeight: "600",
-    fontSize: "0.85rem",
-    transition: "all 0.2s",
-    backgroundColor: "#38bdf8",
-    color: "#0f172a",
-  },
-  buttonSecondary: {
-    backgroundColor: "transparent",
-    border: "1px solid #38bdf8",
-    color: "#38bdf8",
+  btnSecondary: {
+    padding: "10px 16px", borderRadius: "10px",
+    border: "1px solid rgba(56, 189, 248, 0.5)", background: "transparent",
+    color: "#38bdf8", fontWeight: "bold", cursor: "pointer",
   }
 };
 
@@ -102,70 +79,126 @@ function SellerOrdersPage() {
     }
   };
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+  useEffect(() => { fetchOrders(); }, []);
 
-  // Các hàm xử lý giữ nguyên logic của bạn
+  // Hàm chuẩn bị hàng (Gán mặc định là SHIPPING)
   const handlePrepare = async (orderId) => {
+    if (!window.confirm("Xác nhận bạn đã chuẩn bị xong hàng?")) return;
     try {
       await prepareOrder(orderId, { handoverMethod: "SHIPPING" }, token);
-      alert("Đã xác nhận chuẩn bị hàng");
+      alert("Đã chuyển trạng thái sang Chờ bàn giao");
       fetchOrders();
-    } catch (error) { alert("Lỗi!"); }
+    } catch (error) {
+      alert(error.response?.data?.message || "Thao tác thất bại");
+    }
   };
 
+  // Hàm giao vận chuyển với ví dụ cụ thể
   const handleShip = async (orderId) => {
-    const carrier = prompt("Nhập đơn vị vận chuyển:");
-    const trackingCode = prompt("Nhập mã vận đơn:");
-    if (!carrier || !trackingCode) return;
+    const carrier = prompt("Nhập đơn vị vận chuyển (VD: GHTK, Viettel Post, GHN):", "GHTK");
+    const trackingCode = prompt("Nhập mã vận đơn (VD: S210.G1.A123456789):");
+
+    if (!carrier || !trackingCode) {
+      alert("Vui lòng nhập đầy đủ thông tin vận đơn!");
+      return;
+    }
+
     try {
       await shipOrder(orderId, { carrier, trackingCode }, token);
+      alert("Cập nhật vận đơn thành công!");
       fetchOrders();
-    } catch (error) { alert("Lỗi!"); }
+    } catch (error) {
+      alert(error.response?.data?.message || "Cập nhật thất bại");
+    }
   };
 
+  // Hàm hẹn gặp với ví dụ thời gian chuẩn ISO
   const handleMeetup = async (orderId) => {
-    const meetupLocation = prompt("Nhập địa điểm bàn giao:");
-    const meetupTime = prompt("Nhập thời gian bàn giao:");
-    if (!meetupLocation || !meetupTime) return;
+    const now = new Date();
+    const suggestTime = now.toISOString().slice(0, 16); // Lấy YYYY-MM-DDTHH:mm
+
+    const meetupLocation = prompt(
+      "Nhập địa điểm bàn giao (VD: 268 Lý Thường Kiệt, P14, Q10, TP.HCM):", 
+      "Tại sảnh chính tòa nhà..."
+    );
+    const meetupTime = prompt(
+      "Nhập thời gian (Định dạng: Năm-Tháng-NgàyTHiờ:Phút):", 
+      `${suggestTime}`
+    );
+
+    if (!meetupLocation || !meetupTime) {
+      alert("Vui lòng nhập đủ địa điểm và thời gian hẹn!");
+      return;
+    }
+
     try {
       await scheduleMeetup(orderId, { meetupLocation, meetupTime }, token);
+      alert("Đã lên lịch hẹn bàn giao!");
       fetchOrders();
-    } catch (error) { alert("Lỗi!"); }
+    } catch (error) {
+      alert(error.response?.data?.message || "Lên lịch thất bại");
+    }
   };
 
-  if (loading) return <div style={styles.container}><h2>Đang tải...</h2></div>;
+  if (loading) return (
+    <div style={styles.container}>
+      <h2 style={{ textAlign: "center" }}>Đang quét danh sách đơn hàng...</h2>
+    </div>
+  );
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.header}>Quản Lý Bàn Giao Đơn Hàng</h1>
+      <h1 style={styles.header}>Quản Lý Bàn Giao & Vận Chuyển</h1>
 
       {orders.length === 0 ? (
-        <p style={{ textAlign: "center" }}>Chưa có đơn hàng nào.</p>
+        <div style={{ textAlign: "center", marginTop: "50px" }}>
+          <p style={{ color: "#64748b" }}>Chưa có đơn hàng nào cần xử lý.</p>
+        </div>
       ) : (
         <div style={styles.grid}>
           {orders.map((order) => (
-            <div key={order._id} style={styles.card} className="order-card">
+            <div key={order._id} style={styles.card}>
               <div style={styles.statusBadge}>{order.status}</div>
-              <h3 style={styles.title}>{order.auctionId?.title}</h3>
+              
+              <h3 style={{ marginBottom: "12px", color: "#fff", fontSize: "1.1rem" }}>
+                {order.auctionId?.title || "Sản phẩm đấu giá"}
+              </h3>
               
               <p style={styles.infoText}>
-                <strong>Giá trúng:</strong> <span style={{color: '#fbbf24'}}>{order.finalPrice?.toLocaleString("vi-VN")} VND</span>
+                Giá chốt: <span style={styles.price}>{order.finalPrice?.toLocaleString("vi-VN")} VND</span>
               </p>
-              <p style={styles.infoText}><strong>Người mua:</strong> {order.buyerId?.fullName || order.buyerId?.name}</p>
-              <p style={styles.infoText}><strong>Email:</strong> {order.buyerId?.email}</p>
-              <p style={styles.infoText}><strong>SĐT:</strong> {order.buyerId?.phone || "N/A"}</p>
+              
+              <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", marginTop: "15px", paddingTop: "15px" }}>
+                <p style={styles.infoText}>👤 <strong>Người mua:</strong> {order.buyerId?.fullName || order.buyerId?.name}</p>
+                <p style={styles.infoText}>📧 <strong>Email:</strong> {order.buyerId?.email}</p>
+                <p style={styles.infoText}>📞 <strong>SĐT:</strong> {order.buyerId?.phone || "Chưa cung cấp"}</p>
+              </div>
 
+              {/* KHỐI HÀNH ĐỘNG TÙY THEO TRẠNG THÁI */}
               <div style={styles.buttonGroup}>
                 {order.status === "PAID" && (
                   <>
-                    <button style={styles.button} onClick={() => handlePrepare(order._id)}>Chuẩn bị hàng</button>
-                    <button style={{...styles.button, ...styles.buttonSecondary}} onClick={() => handleShip(order._id)}>Giao vận chuyển</button>
+                    <button style={styles.btnPrimary} onClick={() => handlePrepare(order._id)}>
+                      📦 Chuẩn bị hàng
+                    </button>
+                    <button style={styles.btnSecondary} onClick={() => handleShip(order._id)}>
+                      🚚 Giao bưu cục
+                    </button>
+                    <button style={styles.btnSecondary} onClick={() => handleMeetup(order._id)}>
+                      🤝 Hẹn gặp mặt
+                    </button>
                   </>
                 )}
-                {(order.status === "PAID" || order.status === "PREPARING_HANDOVER") && (
-                   <button style={{...styles.button, ...styles.buttonSecondary}} onClick={() => handleMeetup(order._id)}>Hẹn trực tiếp</button>
+
+                {order.status === "PREPARING_HANDOVER" && (
+                  <>
+                    <button style={{...styles.btnPrimary, background: "#fbbf24"}} onClick={() => handleShip(order._id)}>
+                      📝 Nhập mã vận đơn
+                    </button>
+                    <button style={styles.btnSecondary} onClick={() => handleMeetup(order._id)}>
+                      📅 Đặt lịch hẹn mới
+                    </button>
+                  </>
                 )}
               </div>
             </div>
