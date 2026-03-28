@@ -31,10 +31,8 @@ function CreateAuctionPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const token = localStorage.getItem("token");
-
       if (!token) {
         setMessage("Bạn cần đăng nhập trước");
         return;
@@ -45,163 +43,125 @@ function CreateAuctionPage() {
       );
 
       const payload = {
-        title: formData.title,
-        description: formData.description,
+        ...formData,
         startPrice: Number(formData.startPrice),
         minBidStep: Number(formData.minBidStep),
-        startTime: formData.startTime,
-        endTime: formData.endTime,
-        category: formData.category,
-        location: formData.location,
-        condition: formData.condition,
         images,
       };
 
       await createAuction(payload, token);
-
-      setMessage("Tạo phiên đấu giá thành công, đang chờ admin duyệt");
-      navigate("/seller/dashboard");
+      setMessage("Tạo phiên đấu giá thành công, đang chờ admin duyệt ✅");
+      setTimeout(() => navigate("/seller/dashboard"), 1500);
     } catch (err) {
       setMessage(err.response?.data?.message || "Tạo phiên đấu giá thất bại");
     }
   };
 
+  const inputStyle = "w-full bg-[#020617] border border-white/10 rounded-2xl px-6 py-4 focus:border-blue-500 outline-none transition-all text-white placeholder:text-slate-600";
+  const labelStyle = "text-[10px] text-slate-500 uppercase font-black tracking-[0.2em] mb-2 block ml-2";
+
   return (
-    <div>
-      <h1 className="page-title">Tạo phiên đấu giá</h1>
-      <p className="page-subtitle">Điền thông tin sản phẩm và thêm ảnh minh họa.</p>
+    <div className="min-h-screen bg-[#020617] text-white pb-20">
+      <div className="max-w-4xl mx-auto px-6 pt-16">
+        
+        {/* HEADER */}
+        <div className="mb-12">
+          <h1 className="text-5xl font-black tracking-tighter mb-4 uppercase italic bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">
+            Tạo đấu giá mới
+          </h1>
+          <p className="text-slate-500 text-lg border-l-2 border-blue-500 pl-4">
+            Cung cấp thông tin chi tiết để thu hút những người đấu giá tiềm năng nhất.
+          </p>
+        </div>
 
-      <div className="form-card">
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <input
-              type="text"
-              name="title"
-              placeholder="Tên sản phẩm"
-              value={formData.title}
-              onChange={handleChange}
-              required
-            />
+        <form onSubmit={handleSubmit} className="space-y-8">
+          
+          {/* PHẦN 1: THÔNG TIN SẢN PHẨM */}
+          <div className="bg-[#0f172a]/30 border border-white/5 p-8 rounded-[2.5rem] backdrop-blur-md">
+            <h2 className="text-xl font-black mb-8 uppercase italic flex items-center gap-3">
+              <span className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 text-xs not-italic">01</span>
+              Thông tin sản phẩm
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className={labelStyle}>Tên sản phẩm</label>
+                <input type="text" name="title" className={inputStyle} placeholder="Ví dụ: iPhone 15 Pro Max New 100%" value={formData.title} onChange={handleChange} required />
+              </div>
+              <div className="md:col-span-2">
+                <label className={labelStyle}>Mô tả chi tiết</label>
+                <textarea name="description" className={inputStyle} rows="4" placeholder="Mô tả các đặc điểm nổi bật..." value={formData.description} onChange={handleChange} />
+              </div>
+              <div>
+                <label className={labelStyle}>Danh mục</label>
+                <input type="text" name="category" className={inputStyle} placeholder="Điện thoại, Laptop..." value={formData.category} onChange={handleChange} />
+              </div>
+              <div>
+                <label className={labelStyle}>Tình trạng</label>
+                <input type="text" name="condition" className={inputStyle} placeholder="Mới, Like New, 99%..." value={formData.condition} onChange={handleChange} />
+              </div>
+              <div className="md:col-span-2">
+                <label className={labelStyle}>Địa điểm</label>
+                <input type="text" name="location" className={inputStyle} placeholder="Hà Nội, TP. HCM..." value={formData.location} onChange={handleChange} />
+              </div>
+            </div>
           </div>
 
-          <div className="form-group">
-            <textarea
-              name="description"
-              placeholder="Mô tả sản phẩm"
-              value={formData.description}
-              onChange={handleChange}
-              rows="4"
-            />
+          {/* PHẦN 2: GIÁ & THỜI GIAN */}
+          <div className="bg-[#0f172a]/30 border border-white/5 p-8 rounded-[2.5rem] backdrop-blur-md">
+            <h2 className="text-xl font-black mb-8 uppercase italic flex items-center gap-3">
+              <span className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 text-xs not-italic">02</span>
+              Giá & Thời gian
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className={labelStyle}>Giá khởi điểm (VND)</label>
+                <input type="number" name="startPrice" className={inputStyle} placeholder="0" value={formData.startPrice} onChange={handleChange} required />
+              </div>
+              <div>
+                <label className={labelStyle}>Bước giá tối thiểu (VND)</label>
+                <input type="number" name="minBidStep" className={inputStyle} placeholder="50.000" value={formData.minBidStep} onChange={handleChange} required />
+              </div>
+              <div>
+                <label className={labelStyle}>Ngày bắt đầu</label>
+                <input type="datetime-local" name="startTime" className={inputStyle} value={formData.startTime} onChange={handleChange} required />
+              </div>
+              <div>
+                <label className={labelStyle}>Ngày kết thúc</label>
+                <input type="datetime-local" name="endTime" className={inputStyle} value={formData.endTime} onChange={handleChange} required />
+              </div>
+            </div>
           </div>
 
-          <div className="form-group">
-            <input
-              type="text"
-              name="category"
-              placeholder="Danh mục (ví dụ: Điện thoại, Laptop...)"
-              value={formData.category}
-              onChange={handleChange}
-            />
+          {/* PHẦN 3: HÌNH ẢNH */}
+          <div className="bg-[#0f172a]/30 border border-white/5 p-8 rounded-[2.5rem] backdrop-blur-md">
+            <h2 className="text-xl font-black mb-8 uppercase italic flex items-center gap-3">
+              <span className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 text-xs not-italic">03</span>
+              Hình ảnh minh họa
+            </h2>
+            <div className="space-y-4">
+              <input type="text" name="image1" className={inputStyle} placeholder="Link ảnh chính (URL)" value={formData.image1} onChange={handleChange} />
+              <div className="grid grid-cols-2 gap-4">
+                <input type="text" name="image2" className={inputStyle} placeholder="Link ảnh phụ 1" value={formData.image2} onChange={handleChange} />
+                <input type="text" name="image3" className={inputStyle} placeholder="Link ảnh phụ 2" value={formData.image3} onChange={handleChange} />
+              </div>
+            </div>
           </div>
 
-          <div className="form-group">
-            <input
-              type="text"
-              name="location"
-              placeholder="Địa điểm sản phẩm"
-              value={formData.location}
-              onChange={handleChange}
-            />
+          {/* NÚT SUBMIT */}
+          <div className="pt-6">
+            <button type="submit" className="w-full py-6 bg-white text-[#020617] font-black rounded-2xl hover:bg-blue-500 hover:text-white transition-all transform active:scale-[0.98] shadow-2xl shadow-blue-500/10 uppercase tracking-[0.2em]">
+              KÍCH HOẠT PHIÊN ĐẤU GIÁ
+            </button>
+            {message && (
+              <p className={`mt-6 text-center text-sm font-bold p-4 rounded-xl border ${
+                message.includes("thành công") ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+              }`}>
+                {message}
+              </p>
+            )}
           </div>
 
-          <div className="form-group">
-            <input
-              type="text"
-              name="condition"
-              placeholder="Tình trạng sản phẩm"
-              value={formData.condition}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group">
-            <input
-              type="number"
-              name="startPrice"
-              placeholder="Giá khởi điểm"
-              value={formData.startPrice}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <input
-              type="number"
-              name="minBidStep"
-              placeholder="Bước giá tối thiểu"
-              value={formData.minBidStep}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <input
-              type="datetime-local"
-              name="startTime"
-              value={formData.startTime}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <input
-              type="datetime-local"
-              name="endTime"
-              value={formData.endTime}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <input
-              type="text"
-              name="image1"
-              placeholder="Link ảnh 1"
-              value={formData.image1}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group">
-            <input
-              type="text"
-              name="image2"
-              placeholder="Link ảnh 2"
-              value={formData.image2}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group">
-            <input
-              type="text"
-              name="image3"
-              placeholder="Link ảnh 3"
-              value={formData.image3}
-              onChange={handleChange}
-            />
-          </div>
-
-          <button className="primary-btn" type="submit">
-            Tạo phiên đấu giá
-          </button>
         </form>
-
-        {message && <p className="info-message">{message}</p>}
       </div>
     </div>
   );

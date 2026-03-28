@@ -25,9 +25,7 @@ function ProfilePage() {
     try {
       const data = await getMyProfile(token);
       const user = data.user;
-
       setUserData(user);
-
       setFormData({
         name: user.name || "",
         fullName: user.fullName || "",
@@ -53,46 +51,23 @@ function ProfilePage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (["province", "district", "ward", "detail"].includes(name)) {
       setFormData((prev) => ({
         ...prev,
-        address: {
-          ...prev.address,
-          [name]: value,
-        },
+        address: { ...prev.address, [name]: value },
       }));
       return;
     }
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       setSaving(true);
       const data = await updateMyProfile(formData, token);
       alert(data.message || "Cập nhật hồ sơ thành công");
-
       setUserData(data.user);
-
-      setFormData({
-        name: data.user.name || "",
-        fullName: data.user.fullName || "",
-        phone: data.user.phone || "",
-        avatar: data.user.avatar || "",
-        address: {
-          province: data.user.address?.province || "",
-          district: data.user.address?.district || "",
-          ward: data.user.address?.ward || "",
-          detail: data.user.address?.detail || "",
-        },
-      });
     } catch (error) {
       alert(error.response?.data?.message || "Cập nhật hồ sơ thất bại");
     } finally {
@@ -100,181 +75,188 @@ function ProfilePage() {
     }
   };
 
-  if (loading) return <h2>Đang tải hồ sơ...</h2>;
+  if (loading) return (
+    <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+    </div>
+  );
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-      <h1 style={{ marginBottom: 20 }}>Hồ sơ cá nhân</h1>
+    <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-3xl font-extrabold text-slate-900 mb-8 flex items-center gap-3">
+          <i className="fa-solid fa-user-gear text-blue-600"></i>
+          Hồ sơ cá nhân
+        </h1>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 24,
-          alignItems: "start",
-        }}
-      >
-        <div
-          style={{
-            background: "#fff",
-            border: "1px solid #ddd",
-            borderRadius: 12,
-            padding: 20,
-          }}
-        >
-          <h2 style={{ marginBottom: 16 }}>Thông tin hiển thị</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Card: Thông tin hiển thị (Bên trái) */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all hover:shadow-md">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 h-24"></div>
+              <div className="px-6 pb-6">
+                <div className="relative -mt-12 mb-4 flex justify-center">
+                  {userData?.avatar ? (
+                    <img
+                      src={userData.avatar}
+                      alt="avatar"
+                      className="w-24 h-24 rounded-full border-4 border-white object-cover shadow-sm bg-white"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full border-4 border-white bg-slate-200 flex items-center justify-center text-slate-400 text-2xl shadow-sm">
+                      <i className="fa-solid fa-camera"></i>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="text-center mb-6">
+                  <h2 className="text-xl font-bold text-slate-800">{userData?.name || "Người dùng"}</h2>
+                  <p className="text-sm text-slate-500">{userData?.email}</p>
+                </div>
 
-          <div style={{ textAlign: "center", marginBottom: 16 }}>
-            {userData?.avatar ? (
-              <img
-                src={userData.avatar}
-                alt="avatar"
-                style={{
-                  width: 140,
-                  height: 140,
-                  objectFit: "cover",
-                  borderRadius: "50%",
-                  border: "3px solid #ddd",
-                }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: 140,
-                  height: 140,
-                  margin: "0 auto",
-                  borderRadius: "50%",
-                  background: "#eee",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 18,
-                  color: "#666",
-                }}
-              >
-                Chưa có ảnh
+                <div className="space-y-4 text-sm">
+                  <div className="flex justify-between border-b border-slate-50 pb-2">
+                    <span className="text-slate-500">Họ và tên:</span>
+                    <span className="font-semibold text-slate-700">{userData?.fullName || "—"}</span>
+                  </div>
+                  <div className="flex justify-between border-b border-slate-50 pb-2">
+                    <span className="text-slate-500">Số điện thoại:</span>
+                    <span className="font-semibold text-slate-700">{userData?.phone || "—"}</span>
+                  </div>
+                  <div className="flex flex-col border-b border-slate-50 pb-2">
+                    <span className="text-slate-500 mb-1">Địa chỉ:</span>
+                    <span className="font-semibold text-slate-700 leading-relaxed">
+                      {[userData?.address?.detail, userData?.address?.ward, userData?.address?.district, userData?.address?.province].filter(Boolean).join(", ") || "Chưa cập nhật"}
+                    </span>
+                  </div>
+                  <div className="pt-2">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${userData?.isProfileCompleted ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                      {userData?.isProfileCompleted ? '● Đã hoàn thiện' : '○ Chưa hoàn thiện'}
+                    </span>
+                  </div>
+                </div>
               </div>
-            )}
+            </div>
           </div>
 
-          <p><strong>Tên hiển thị:</strong> {userData?.name || "Chưa cập nhật"}</p>
-          <p><strong>Họ và tên:</strong> {userData?.fullName || "Chưa cập nhật"}</p>
-          <p><strong>Email:</strong> {userData?.email || "Chưa cập nhật"}</p>
-          <p><strong>Số điện thoại:</strong> {userData?.phone || "Chưa cập nhật"}</p>
-          <p>
-            <strong>Địa chỉ:</strong>{" "}
-            {[
-              userData?.address?.detail,
-              userData?.address?.ward,
-              userData?.address?.district,
-              userData?.address?.province,
-            ]
-              .filter(Boolean)
-              .join(", ") || "Chưa cập nhật"}
-          </p>
-          <p>
-            <strong>Trạng thái hồ sơ:</strong>{" "}
-            {userData?.isProfileCompleted ? "Đã hoàn thiện" : "Chưa hoàn thiện"}
-          </p>
+          {/* Form: Chỉnh sửa (Bên phải) */}
+          <div className="lg:col-span-2">
+            <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 space-y-6 transition-all hover:shadow-md">
+              <h2 className="text-xl font-bold text-slate-800 mb-2">Chỉnh sửa hồ sơ</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tên hiển thị</label>
+                  <input
+                    type="text"
+                    name="name"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder:text-slate-300"
+                    placeholder="VD: Thành Lê"
+                    value={formData.name}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Họ và tên</label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder:text-slate-300"
+                    placeholder="Nhập đầy đủ họ tên"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Số điện thoại</label>
+                  <input
+                    type="text"
+                    name="phone"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder:text-slate-300"
+                    placeholder="09xxx..."
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">URL Ảnh đại diện</label>
+                  <input
+                    type="text"
+                    name="avatar"
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder:text-slate-300"
+                    placeholder="https://..."
+                    value={formData.avatar}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div className="h-px bg-slate-100 my-2"></div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tỉnh / Thành</label>
+                  <input
+                    type="text"
+                    name="province"
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    value={formData.address.province}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Quận / Huyện</label>
+                  <input
+                    type="text"
+                    name="district"
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    value={formData.address.district}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Phường / Xã</label>
+                  <input
+                    type="text"
+                    name="ward"
+                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    value={formData.address.ward}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Địa chỉ chi tiết</label>
+                <input
+                  type="text"
+                  name="detail"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder:text-slate-300"
+                  placeholder="Số nhà, tên đường..."
+                  value={formData.address.detail}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="flex justify-end pt-4">
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className={`px-8 py-3 rounded-xl font-bold text-white transition-all shadow-lg flex items-center gap-2 ${
+                    saving 
+                    ? "bg-slate-400 cursor-not-allowed" 
+                    : "bg-blue-600 hover:bg-blue-700 active:scale-95 shadow-blue-200"
+                  }`}
+                >
+                  {saving && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
+                  {saving ? "Đang xử lý..." : "Lưu thay đổi"}
+                </button>
+              </div>
+            </form>
+          </div>
+
         </div>
-
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            display: "grid",
-            gap: 12,
-            background: "#fff",
-            padding: 20,
-            borderRadius: 12,
-            border: "1px solid #ddd",
-          }}
-        >
-          <h2 style={{ marginBottom: 8 }}>Chỉnh sửa hồ sơ</h2>
-
-          <input
-            type="text"
-            name="name"
-            placeholder="Tên hiển thị"
-            value={formData.name}
-            onChange={handleChange}
-          />
-
-          <input
-            type="text"
-            name="fullName"
-            placeholder="Họ và tên"
-            value={formData.fullName}
-            onChange={handleChange}
-          />
-
-          <input
-            type="text"
-            name="phone"
-            placeholder="Số điện thoại"
-            value={formData.phone}
-            onChange={handleChange}
-          />
-
-          <input
-            type="text"
-            name="avatar"
-            placeholder="Link ảnh đại diện hoặc base64"
-            value={formData.avatar}
-            onChange={handleChange}
-          />
-
-          {formData.avatar && (
-            <div style={{ textAlign: "center" }}>
-              <img
-                src={formData.avatar}
-                alt="preview"
-                style={{
-                  width: 100,
-                  height: 100,
-                  objectFit: "cover",
-                  borderRadius: "50%",
-                  border: "2px solid #ddd",
-                }}
-              />
-            </div>
-          )}
-
-          <input
-            type="text"
-            name="province"
-            placeholder="Tỉnh / Thành phố"
-            value={formData.address.province}
-            onChange={handleChange}
-          />
-
-          <input
-            type="text"
-            name="district"
-            placeholder="Quận / Huyện"
-            value={formData.address.district}
-            onChange={handleChange}
-          />
-
-          <input
-            type="text"
-            name="ward"
-            placeholder="Phường / Xã"
-            value={formData.address.ward}
-            onChange={handleChange}
-          />
-
-          <input
-            type="text"
-            name="detail"
-            placeholder="Địa chỉ chi tiết"
-            value={formData.address.detail}
-            onChange={handleChange}
-          />
-
-          <button type="submit" disabled={saving}>
-            {saving ? "Đang lưu..." : "Cập nhật hồ sơ"}
-          </button>
-        </form>
       </div>
     </div>
   );
