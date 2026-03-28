@@ -8,7 +8,7 @@ function MainLayout({ children }) {
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#f8fafc", // Màu nền xám xanh rất nhẹ (Slate 50)
+        backgroundColor: "#020617",
       }}
     >
       {/* Header sẽ luôn dính trên cùng nhờ CSS mình đã viết ở bước trước */}
@@ -16,12 +16,9 @@ function MainLayout({ children }) {
 
       <main
         style={{
-          flex: 1, // Đẩy Footer xuống cuối trang nếu nội dung ngắn
-          maxWidth: "1200px",
+          flex: 1,
           width: "100%",
-          margin: "0 auto",
-          padding: "40px 20px", // Tăng khoảng cách trên dưới cho thoáng
-          boxSizing: "border-box", // Đảm bảo padding không làm vỡ layout
+          boxSizing: "border-box",
         }}
       >
         {/* Đây là nơi nội dung các trang (Login, Create Auction...) hiển thị */}
