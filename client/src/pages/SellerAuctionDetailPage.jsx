@@ -4,209 +4,228 @@ import { getSellerAuctionDetail } from "../services/userService";
 import { getAuctionBids } from "../services/auctionService";
 import { getRemainingTime, getStatusLabel } from "../utils/time";
 
+const styles = {
+  container: {
+    padding: "40px 20px",
+    backgroundColor: "#050a18",
+    minHeight: "100vh",
+    color: "#ffffff",
+    fontFamily: "'Inter', sans-serif",
+  },
+  contentWrapper: {
+    maxWidth: "1200px",
+    margin: "0 auto",
+  },
+  // Header section
+  headerAction: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "30px",
+  },
+  // Stat Cards
+  statsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+    gap: "20px",
+    marginBottom: "30px",
+  },
+  statCard: {
+    background: "rgba(255, 255, 255, 0.03)",
+    border: "1px solid rgba(255, 255, 255, 0.08)",
+    borderRadius: "20px",
+    padding: "20px",
+    textAlign: "center",
+  },
+  // Main Content
+  mainGrid: {
+    display: "grid",
+    gridTemplateColumns: "1.2fr 0.8fr",
+    gap: "30px",
+  },
+  card: {
+    background: "rgba(255, 255, 255, 0.03)",
+    backdropFilter: "blur(12px)",
+    border: "1px solid rgba(255, 255, 255, 0.08)",
+    borderRadius: "24px",
+    padding: "24px",
+    marginBottom: "24px",
+  },
+  imageGallery: {
+    display: "grid",
+    gridTemplateColumns: "2fr 1fr",
+    gap: "10px",
+    marginBottom: "20px",
+  },
+  mainImg: {
+    width: "100%",
+    height: "350px",
+    objectFit: "cover",
+    borderRadius: "16px",
+  },
+  sideImgs: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+  smallImg: {
+    width: "100%",
+    height: "170px",
+    objectFit: "cover",
+    borderRadius: "16px",
+  },
+  badge: (type) => ({
+    padding: "6px 12px",
+    borderRadius: "10px",
+    fontSize: "0.75rem",
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    backgroundColor: type === "approved" ? "#10b98122" : "#f59e0b22",
+    color: type === "approved" ? "#10b981" : "#f59e0b",
+    border: `1px solid ${type === "approved" ? "#10b98144" : "#f59e0b44"}`,
+  }),
+  priceText: {
+    fontSize: "2rem",
+    fontWeight: "800",
+    color: "#38bdf8",
+    margin: "10px 0",
+  },
+  bidRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "12px 0",
+    borderBottom: "1px solid rgba(255,255,255,0.05)",
+  }
+};
+
 function SellerAuctionDetailPage() {
   const { id } = useParams();
   const token = localStorage.getItem("token");
-
   const [auction, setAuction] = useState(null);
   const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [, setTick] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const auctionRes = await getSellerAuctionDetail(id, token);
-        setAuction(auctionRes.auction);
-
-        if (auctionRes.auction.approvalStatus === "approved") {
-          const bidsRes = await getAuctionBids(id);
-          setBids(bidsRes.bids || []);
+        const res = await getSellerAuctionDetail(id, token);
+        setAuction(res.auction);
+        if (res.auction.approvalStatus === "approved") {
+          const bRes = await getAuctionBids(id);
+          setBids(bRes.bids || []);
         }
-      } catch (err) {
-        setError(err.response?.data?.message || "Không thể tải dữ liệu");
-      } finally {
-        setLoading(false);
-      }
+      } catch (err) { console.error(err); }
+      finally { setLoading(false); }
     };
-
     fetchData();
   }, [id, token]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTick((prev) => prev + 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
+    const timer = setInterval(() => setTick(t => t + 1), 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  if (loading) return <h2>Đang tải chi tiết quản lý...</h2>;
-  if (error) return <h2>{error}</h2>;
-  if (!auction) return <h2>Không tìm thấy phiên đấu giá</h2>;
+  if (loading) return <div style={styles.container}><h2>Đang khởi tạo dữ liệu...</h2></div>;
+  if (!auction) return <div style={styles.container}><h2>Không tìm thấy phiên đấu giá.</h2></div>;
 
   return (
-    <div>
-      {/* --- PHẦN 1: GALLERY HÌNH ẢNH --- */}
-      <div className="detail-card">
-        <h2 className="detail-section-title">Hình ảnh sản phẩm</h2>
-
-        {auction.images && auction.images.length > 0 ? (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "12px",
-            }}
-          >
-            {auction.images.map((img, index) => (
-              <img
-                key={index}
-                src={img}
-                alt={`${auction.title}-${index}`}
-                style={{
-                  width: "100%",
-                  height: "220px",
-                  objectFit: "cover",
-                  borderRadius: "12px",
-                }}
-              />
-            ))}
+    <div style={styles.container}>
+      <div style={styles.contentWrapper}>
+        
+        {/* TOP BAR */}
+        <div style={styles.headerAction}>
+          <div>
+            <span style={styles.badge(auction.approvalStatus)}>{auction.approvalStatus}</span>
+            <h1 style={{ marginTop: "10px", fontSize: "1.8rem" }}>Quản lý: {auction.title}</h1>
           </div>
-        ) : (
-          <p>Chưa có hình ảnh sản phẩm.</p>
-        )}
-      </div>
-
-      {/* --- PHẦN 2: THÔNG TIN CHI TIẾT --- */}
-      <div className="detail-card">
-        <h1 className="page-title">{auction.title}</h1>
-        <p className="page-subtitle">{auction.description}</p>
-
-        <div style={{ marginBottom: "16px", padding: "10px", backgroundColor: "#f8fafc", borderRadius: "8px" }}>
-          <p>
-            <strong>Danh mục:</strong> {auction.category || "Khác"}
-          </p>
-          <p>
-            <strong>Địa điểm:</strong> {auction.location || "Chưa cập nhật"}
-          </p>
-          <p>
-            <strong>Tình trạng:</strong> {auction.condition || "Chưa cập nhật"}
-          </p>
+          {auction.approvalStatus === "approved" && (
+            <Link to={`/auctions/${auction._id}`}>
+              <button style={{ 
+                padding: "12px 24px", borderRadius: "12px", border: "none", 
+                background: "#38bdf8", color: "#000", fontWeight: "bold", cursor: "pointer" 
+              }}>Xem trang công khai</button>
+            </Link>
+          )}
         </div>
 
-        <p>
-          <strong>Trạng thái duyệt:</strong>{" "}
-          {auction.approvalStatus === "pending"
-            ? "Chờ duyệt"
-            : auction.approvalStatus === "approved"
-            ? "Đã duyệt"
-            : "Bị từ chối"}
-        </p>
-
-        {auction.approvalStatus === "rejected" && auction.approvalNote && (
-          <p>
-            <strong style={{ color: "red" }}>Lý do từ chối:</strong> {auction.approvalNote}
-          </p>
-        )}
-
-        <p>
-          <strong>Trạng thái đấu giá:</strong> {getStatusLabel(auction.status)}
-        </p>
-
-        <p>
-          <strong>Giá hiện tại:</strong>{" "}
-          {auction.currentPrice?.toLocaleString("vi-VN")} VND
-        </p>
-
-        <p>
-          <strong>Giá khởi điểm:</strong>{" "}
-          {auction.startPrice?.toLocaleString("vi-VN")} VND
-        </p>
-
-        <p>
-          <strong>Bước giá tối thiểu:</strong>{" "}
-          {auction.minBidStep?.toLocaleString("vi-VN")} VND
-        </p>
-
-        <p>
-          <strong>Người dẫn đầu:</strong>{" "}
-          {auction.highestBidderId
-            ? `${auction.highestBidderId.name} - ${auction.highestBidderId.email}`
-            : "Chưa có"}
-        </p>
-
-        <p>
-          <strong>Thời gian còn lại:</strong>{" "}
-          {auction.status === "ended"
-            ? "Đã kết thúc"
-            : getRemainingTime(auction.endTime)}
-        </p>
-
-        {/* BẮT ĐẦU PHẦN BỔ SUNG */}
-        {auction.status === "ended" && (
-          <div style={{ marginTop: "10px", padding: "10px", borderTop: "1px dashed #ccc" }}>
-            <p>
-              <strong>Người chiến thắng:</strong>{" "}
-              {auction.winnerId
-                ? `${auction.winnerId.name} - ${auction.winnerId.email}`
-                : "Không có"}
-            </p>
-
-            <p>
-              <strong>Giá chốt:</strong>{" "}
-              {auction.currentPrice?.toLocaleString("vi-VN")} VND
-            </p>
-
-            <p>
-              <strong>Trạng thái thanh toán:</strong>{" "}
-              {auction.paymentStatus === "paid"
-                ? "Đã thanh toán"
-                : auction.paymentStatus === "pending"
-                ? "Chờ thanh toán"
-                : "Chưa thanh toán"}
+        {/* QUICK STATS */}
+        <div style={styles.statsGrid}>
+          <div style={styles.statCard}>
+            <p style={{ color: "#94a3b8", fontSize: "0.85rem" }}>Giá hiện tại</p>
+            <p style={styles.priceText}>{auction.currentPrice?.toLocaleString()} <small style={{fontSize: '0.9rem'}}>VND</small></p>
+          </div>
+          <div style={styles.statCard}>
+            <p style={{ color: "#94a3b8", fontSize: "0.85rem" }}>Thời gian còn lại</p>
+            <p style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#f43f5e", marginTop: "10px" }}>
+              {auction.status === "ended" ? "Hết giờ" : getRemainingTime(auction.endTime)}
             </p>
           </div>
-        )}
-        {/* KẾT THÚC PHẦN BỔ SUNG */}
-
-        {auction.approvalStatus === "approved" && (
-          <div style={{ marginTop: "16px" }}>
-            <Link to={`/auctions/${auction._id}`}>
-              <button className="primary-btn">Xem trang công khai</button>
-            </Link>
+          <div style={styles.statCard}>
+            <p style={{ color: "#94a3b8", fontSize: "0.85rem" }}>Lượt đặt giá</p>
+            <p style={{ fontSize: "1.5rem", fontWeight: "bold", marginTop: "10px" }}>{bids.length} lượt</p>
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* --- PHẦN 3: LỊCH SỬ ĐẶT GIÁ --- */}
-      <div className="detail-card">
-        <h2 className="detail-section-title">Lịch sử đặt giá</h2>
-
-        {auction.approvalStatus !== "approved" ? (
-          <p>Phiên đấu giá chưa được duyệt công khai nên chưa hiển thị lịch sử đấu giá.</p>
-        ) : bids.length === 0 ? (
-          <p>Chưa có lượt đặt giá nào.</p>
-        ) : (
-          <div className="bid-list">
-            {bids.map((bid) => (
-              <div key={bid._id} className="bid-item">
-                <p>
-                  <strong>Người đặt:</strong> {bid.userId?.name} - {bid.userId?.email}
-                </p>
-                <p>
-                  <strong>Số tiền:</strong>{" "}
-                  {bid.bidAmount?.toLocaleString("vi-VN")} VND
-                </p>
-                <p>
-                  <strong>Thời gian:</strong>{" "}
-                  {new Date(bid.createdAt).toLocaleString("vi-VN")}
-                </p>
+        <div style={styles.mainGrid}>
+          {/* LEFT: IMAGES & INFO */}
+          <div>
+            <div style={styles.card}>
+              <div style={styles.imageGallery}>
+                <img src={auction.images[0]} style={styles.mainImg} alt="main" />
+                <div style={styles.sideImgs}>
+                  {auction.images.slice(1, 3).map((img, i) => (
+                    <img key={i} src={img} style={styles.smallImg} alt="sub" />
+                  ))}
+                </div>
               </div>
-            ))}
+              <h3 style={{ color: "#38bdf8", marginBottom: "15px" }}>Chi tiết sản phẩm</h3>
+              <p style={{ color: "#cbd5e1", lineHeight: "1.6" }}>{auction.description}</p>
+              
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginTop: "20px", color: "#94a3b8" }}>
+                <p>📍 {auction.location}</p>
+                <p>📦 {auction.condition}</p>
+                <p>🏷️ {auction.category}</p>
+                <p>📉 Bước giá: {auction.minBidStep?.toLocaleString()} VND</p>
+              </div>
+            </div>
           </div>
-        )}
+
+          {/* RIGHT: BIDS & WINNER */}
+          <div>
+            {auction.status === "ended" && auction.winnerId && (
+              <div style={{ ...styles.card, border: "1px solid #10b981", background: "#10b98105" }}>
+                <h3 style={{ color: "#10b981", marginBottom: "15px" }}>🏆 Người chiến thắng</h3>
+                <p style={{ fontWeight: "bold" }}>{auction.winnerId.name}</p>
+                <p style={{ fontSize: "0.85rem", color: "#94a3b8" }}>{auction.winnerId.email}</p>
+                <div style={{ marginTop: "15px", padding: "10px", borderRadius: "10px", background: "#ffffff05" }}>
+                  Thanh toán: <span style={{ color: auction.paymentStatus === "paid" ? "#10b981" : "#f59e0b" }}>{auction.paymentStatus}</span>
+                </div>
+              </div>
+            )}
+
+            <div style={styles.card}>
+              <h3 style={{ marginBottom: "20px" }}>Lịch sử đặt giá</h3>
+              <div style={{ maxHeight: "400px", overflowY: "auto", paddingRight: "10px" }}>
+                {bids.length === 0 ? (
+                  <p style={{ color: "#64748b", textAlign: "center" }}>Chưa có dữ liệu</p>
+                ) : (
+                  bids.map((bid, i) => (
+                    <div key={bid._id} style={styles.bidRow}>
+                      <div>
+                        <p style={{ fontSize: "0.9rem", fontWeight: "600" }}>{bid.userId?.name}</p>
+                        <p style={{ fontSize: "0.7rem", color: "#64748b" }}>{new Date(bid.createdAt).toLocaleTimeString()}</p>
+                      </div>
+                      <p style={{ color: i === 0 ? "#38bdf8" : "#fff", fontWeight: "bold" }}>
+                        {bid.bidAmount?.toLocaleString()}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
