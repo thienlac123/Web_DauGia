@@ -20,6 +20,7 @@ import MyOrdersPage from "./pages/MyOrdersPage";
 import AdminOrdersPage from "./pages/AdminOrdersPage";
 import PaymentResultPage from "./pages/PaymentResultPage";
 import ProfilePage from "./pages/ProfilePage";
+import ComparePage from "./pages/ComparePage";
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/auctions" element={<AuctionListPage />} />
+          <Route path="/compare" element={<ComparePage />} />
           <Route path="/auctions/:id" element={<AuctionDetailPage />} />
           <Route
             path="/create-auction"
