@@ -53,7 +53,7 @@ function Header() {
               {userRole === "seller" && (
                 <>
                   <Link to="/seller/dashboard" className="header-link-modern">📊 Dashboard</Link>
-                  {/* <Link to="/create-auction" className="header-link-modern">➕ Tạo đấu giá</Link> */}
+                  {/* <Link to="/create-auction" className="header-link-modern">➕ Tạo phiên đấu giá</Link> */}
                 </>
               )}
               {userRole === "admin" && (

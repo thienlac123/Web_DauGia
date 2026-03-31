@@ -60,7 +60,7 @@ function LoginPage() {
               Chào mừng trở lại
             </motion.h1>
             <p className="text-slate-500 font-medium text-sm">
-              Đăng nhập để tiếp tục tham gia đấu giá
+              Đăng nhập để tiếp tục tham gia phiên đấu giá
             </p>
           </div>
 
