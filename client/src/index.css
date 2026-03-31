@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/* Đảm bảo toàn bộ trang có màu nền nhẹ nhàng như Figma */
+body {
+  @apply bg-gray-50;
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
