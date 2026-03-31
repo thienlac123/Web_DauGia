@@ -53,7 +53,7 @@ function Header() {
               {userRole === "seller" && (
                 <>
                   <Link to="/seller/dashboard" className="header-link-modern">📊 Dashboard</Link>
-                  {/* <Link to="/create-auction" className="header-link-modern">➕ Tạo đấu giá</Link> */}
+                  {/* <Link to="/create-auction" className="header-link-modern">➕ Tạo phiên đấu giá</Link> */}
                 </>
               )}
               {userRole === "admin" && (
@@ -84,6 +84,15 @@ function Header() {
                     <button onClick={() => {navigate("/profile"); setOpenMenu(false)}} style={menuItemStyle}>👤 Hồ sơ</button>
                     {/* Link phụ trong menu nếu cần */}
                     {userRole === "buyer" && <button onClick={() => {navigate("/my-orders"); setOpenMenu(false)}} style={menuItemStyle}>📦 Đơn hàng của tôi</button>}
+                    <button
+                          onClick={() => {
+                            navigate("/compare");
+                            setOpenMenu(false);
+                          }}
+                          style={menuItemStyle}
+                        >
+                          ⚖️ So sánh sản phẩm
+                        </button>
                     {userRole === "seller" && <button onClick={() => {navigate("/seller/orders"); setOpenMenu(false)}} style={menuItemStyle}>🚚 Quản lý bàn giao</button>}
                     <button onClick={handleLogout} style={{ ...menuItemStyle, color: "#ef4444" }}>🚪 Đăng xuất</button>
                   </div>

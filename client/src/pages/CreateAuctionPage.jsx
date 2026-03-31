@@ -92,9 +92,23 @@ function CreateAuctionPage() {
                 <textarea name="description" className={inputStyle} rows="4" placeholder="Mô tả các đặc điểm nổi bật..." value={formData.description} onChange={handleChange} />
               </div>
               <div>
-                <label className={labelStyle}>Danh mục</label>
-                <input type="text" name="category" className={inputStyle} placeholder="Điện thoại, Laptop..." value={formData.category} onChange={handleChange} />
-              </div>
+  <label className={labelStyle}>Danh mục</label>
+  <select 
+    name="category" 
+    className={inputStyle + " appearance-none cursor-pointer"} 
+    value={formData.category} 
+    onChange={handleChange}
+    required
+  >
+    <option value="" className="bg-[#020617]">-- Chọn danh mục --</option>
+    <option value="Điện thoại" className="bg-[#020617]">ĐIỆN THOẠI</option>
+    <option value="Đồng hồ" className="bg-[#020617]">ĐỒNG HỒ</option>
+    <option value="Giày" className="bg-[#020617]">GIÀY</option>
+    <option value="Máy tính" className="bg-[#020617]"> MÁY TÍNH</option>
+    <option value="Máy ảnh" className="bg-[#020617]">MÁY ẢNH</option>
+    <option value="Bàn phím" className="bg-[#020617]">BÀN PHÍM</option>
+  </select>
+</div>
               <div>
                 <label className={labelStyle}>Tình trạng</label>
                 <input type="text" name="condition" className={inputStyle} placeholder="Mới, Like New, 99%..." value={formData.condition} onChange={handleChange} />

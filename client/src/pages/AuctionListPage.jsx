@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getAllAuctions } from "../services/auctionService";
 import { getRemainingTime, getStatusLabel } from "../utils/time";
+import { addCompareItem, getCompareItems } from "../services/compareStorage";
 
 function AuctionListPage() {
   const [auctions, setAuctions] = useState([]);
@@ -11,6 +12,7 @@ function AuctionListPage() {
   const [status, setStatus] = useState("");
   const [sort, setSort] = useState("");
   const [, setTick] = useState(0);
+  const [compareCount, setCompareCount] = useState(0);
 
   const fetchAuctions = async () => {
     try {
@@ -25,15 +27,35 @@ function AuctionListPage() {
     }
   };
 
-  useEffect(() => { fetchAuctions(); }, []);
   useEffect(() => {
-    const interval = setInterval(() => { setTick((prev) => prev + 1); }, 1000);
+    fetchAuctions();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTick((prev) => prev + 1);
+    }, 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Load số lượng compare hiện tại khi component mount
+  useEffect(() => {
+    setCompareCount(getCompareItems().length);
   }, []);
 
   const handleFilter = (e) => {
     e.preventDefault();
     fetchAuctions();
+  };
+
+  const handleAddCompare = (auction) => {
+    try {
+      const updated = addCompareItem(auction);
+      setCompareCount(updated.length);
+      alert("Đã thêm sản phẩm vào danh sách so sánh");
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   const getStatusClass = (auctionStatus) => {
@@ -54,15 +76,30 @@ function AuctionListPage() {
     <div className="min-h-screen bg-[#020617] text-white font-sans selection:bg-blue-500/30">
       
       {/* --- HEADER --- */}
-      <div className="max-w-7xl mx-auto px-6 pt-16 pb-12">
+      <div className="max-w-7xl mx-auto px-6 pt-16 pb-6">
         <h1 className="text-5xl font-black tracking-tighter mb-4 bg-gradient-to-r from-white via-white to-slate-500 bg-clip-text text-transparent">
           Danh sách sản phẩm đấu giá
         </h1>
         <p className="text-slate-500 text-lg font-medium">Tìm kiếm, lọc và theo dõi các phiên đấu giá theo thời gian thực.</p>
       </div>
 
+      {/* --- THANH SO SÁNH (Mới thêm) --- */}
+      <div className="max-w-7xl mx-auto px-6 pb-6">
+        <div className="flex justify-between items-center bg-[#0f172a]/40 border border-white/5 rounded-2xl px-5 py-4">
+          <div className="text-slate-300 font-semibold">
+            Danh sách so sánh hiện có: <span className="text-blue-400 font-black">{compareCount}</span>
+          </div>
+          <Link
+            to="/compare"
+            className="px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black transition"
+          >
+            Mở trang so sánh
+          </Link>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-6">
-        {/* --- BỘ LỌC (Cùng màu nền, border tinh tế) --- */}
+        {/* --- BỘ LỌC --- */}
         <div className="bg-[#0f172a]/40 border border-white/5 p-6 rounded-[2rem] mb-12 backdrop-blur-sm">
           <form onSubmit={handleFilter} className="flex flex-col lg:flex-row gap-4">
             <input
@@ -124,7 +161,6 @@ function AuctionListPage() {
                   ) : (
                     <div className="w-full h-full bg-slate-900 flex items-center justify-center text-slate-600 italic font-bold uppercase tracking-widest">No Image</div>
                   )}
-                  {/* Overlay phủ ảnh cho text nổi bật */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent opacity-80"></div>
                 </div>
 
@@ -160,7 +196,6 @@ function AuctionListPage() {
                       </div>
                     </div>
                     
-                    {/* Time Counter Bar */}
                     <div className="bg-[#020617] border border-white/5 p-4 rounded-2xl flex justify-between items-center group-hover:border-blue-500/20 transition-all">
                       <span className="text-[10px] text-slate-500 uppercase font-black tracking-tighter">Thời gian còn lại</span>
                       <span className={`text-sm font-black ${auction.status === "active" ? "text-emerald-400" : "text-rose-500"}`}>
@@ -173,6 +208,14 @@ function AuctionListPage() {
                         XEM CHI TIẾT
                       </button>
                     </Link>
+
+                    {/* Nút THÊM VÀO SO SÁNH (Mới thêm) */}
+                    <button
+                      onClick={() => handleAddCompare(auction)}
+                      className="w-full mt-1 py-4 bg-emerald-600/90 hover:bg-emerald-500 border border-emerald-400/20 text-white font-black rounded-2xl transition-all duration-300 active:scale-[0.98]"
+                    >
+                      THÊM VÀO SO SÁNH
+                    </button>
                   </div>
                 </div>
               </div>
